@@ -1,9 +1,13 @@
-This work is WIP but it is usable already.
+The goal of this Wordpress plugin is to allow the communication in the wordpress to phpbb way.
+it's the opposite of phpbbwpunicorn plugin, made for phpbb.
+Each plugin register to its own event, no more "hacky all-in-one" plugin that get unstable /unsycnrhonized
 
-Author:
+Required : Wordpress (tested 4.1) 
+Phpbb 3.1+ 
 
-Luis Cordova  cordoval@gmail.com
+Help/Remarks/Evolutions are up to what you may think of. Be creative and don't restrain yourslef about how i could improve the plugin (aka you code like a pig)
 
-Licence:
+I may refuse some : this plugin only treats data from Wordpress TO phpbb, and not the opposite. The phpbb plugin is phpbbwpunicorn
 
-MIT for my contribution, other contribution adapted is bind by their licenses.
+Credits for inspiration : merianos from e-xtnd.it for the original wp-phpbb-bridge i've used until phpbb3.1
+Anytime for a beer dude
