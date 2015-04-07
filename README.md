@@ -11,3 +11,5 @@ I may refuse some : this plugin only treats data from Wordpress TO phpbb, and no
 
 Credits for inspiration : merianos from e-xtnd.it for the original wp-phpbb-bridge i've used until phpbb3.1
 Anytime for a beer dude
+AND nikic for his PHP-Parser that allows me to make some proxy version of the classes (cause no namespaces are used, so that they conflict :))
+
