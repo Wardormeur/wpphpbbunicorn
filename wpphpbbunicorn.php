@@ -259,7 +259,7 @@ class Unicorn{
 		//minimal conf
 		//putenv('PHPBB_NO_COMPOSER_AUTOLOAD=1');
 		global $phpbb_container;
-		global $phpbb_root_path, $phpEx, $user, $auth, $cache, $db, $config, $template, $table_prefix;	
+		global $phpbb_root_path, $phpEx,  $user,$auth, $db, $config, $cache, $template,$table_prefix;
 		global $request;
 		global $phpbb_dispatcher;
 		global $symfony_request;
@@ -269,6 +269,8 @@ class Unicorn{
 		
 		require_once($phpbb_root_path . 'includes/utf/utf_normalizer.php');
 		require_once($phpbb_root_path.'phpbb/user.php');
+		require_once($phpbb_root_path.'phpbb/session.php');
+		require_once($phpbb_root_path.'phpbb/auth/auth.php');
 		require_once(__DIR__ .'\cache\functions_user.php');
 		
 		$request->enable_super_globals();    
@@ -360,20 +362,22 @@ class Unicorn{
     private function load_session_id()
     {
 		global $user, $auth,$phpbb_container;
-        // If not defined IN_PHPBB
-        if(!defined('IN_PHPBB'))
-        {
-            // Define IN_PHPBB and set it to true
-            define('IN_PHPBB', true);
-        }
         
+        define('DEBUG',true);
+		
         $phpbb_config = trim(get_option('wpphpbbu_path'));       // Get config path from options  
 
-		$user = new user();
-		$user->session_begin();
-		
-		if(!is_user_logged_in()){
 
+		$user->session_begin();
+			
+		 
+		if(!is_user_logged_in()){
+		
+			$user = new \phpbb\user();
+			$auth = new \phpbb\auth\auth();
+			$auth->acl($user->data);                                                // Assign user permission on Auth ACL method
+			$user->setup('search');
+			
 			$userid = $this->get_userid();                                          // Get user ID
 			
 			echo "testlog".$userid . is_user_logged_in();
@@ -385,15 +389,18 @@ class Unicorn{
 				$wpuser = wp_set_current_user($userid);                                       // Set the current user
 				wp_set_auth_cookie($userid, true, false);  
 			}
-        }
+        }else{
+			//session_pagestart();
+		}
         // Return current user session id
         return $user->session_id;
     }
     
     private function check_redirect($session_id)
     {
-		global $phpbb_root_path;
+		global $phpbb_root_path, $user;
         // Get current file name
+		//var_dump($user);
     	$filename = strtolower(basename($_SERVER['SCRIPT_FILENAME']));
     	
         // If file name is wp-login.php and user is logged in
@@ -422,8 +429,7 @@ class Unicorn{
 		global $phpbb_container;
            
         $userid = 0;                                            // Set userid to 0;
-        $s_user = $phpbb_container->get('user');
-		//var_dump($s_user);
+        //var_dump($s_user);
 		// If current user type is normal user or the current user type is founder
 		if($user->data['user_type'] == USER_NORMAL || $user->data['user_type'] == USER_FOUNDER)
         {

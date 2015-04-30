@@ -198,7 +198,7 @@ class WPPHPBBU_users_widget extends WP_Widget
             {
                 ?>
                     <a href="<?php echo $ucp_url; ?>" title="<?php _e('User control panel', 'wpphpbbu'); ?>">
-                        <img src="<?php echo $avatar ?>" alt="<?php printf(__('Avatar for %s'),$user->data['username']); ?>" />
+                        <?php echo $avatar ?>
                     </a>
                 <?php
             }

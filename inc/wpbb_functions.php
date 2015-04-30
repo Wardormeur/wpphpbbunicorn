@@ -2,14 +2,30 @@
 
 
 /**
+ * Check if the Web Page exists
+ */
+function page_exists($url)
+{
+    //return true;
+    $file_headers = @get_headers($url);
+    
+    if($file_headers[0] == 'HTTP/1.1 404 Not Found')
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+/**
  * Return the administration link for phpBB
  */
 function wpphpbbu_get_admin_link()
 {
 	global $auth, $user, $phpbb_root_path, $phpEx;
 
-	var_dump($auth);
-	var_dump($user);
 	if(is_object($auth) && method_exists($auth, 'acl_get') && $auth->acl_get('a_') && $user->data['is_registered'])
 	{
 		$forum_url = get_option('wppphpbbu_path');
@@ -26,48 +42,13 @@ function wpphpbbu_get_admin_link()
  */
 function wpphpbbu_get_avatar($ua = "", $tp = null)
 {
-	global $config, $user;
+	global $config, $user,$phpbb_container;
     
 	$forum_url = get_option('wppphpbbu_path');
 	
-	if($ua == "" && $tp == null)
-	{
-		switch($user->data['user_avatar_type'])
-		{
-			case 1:
-				return $forum_url . 'download/file.php?avatar=' . $user->data['user_avatar'];
-				break;
-			case 2:
-				return $user->data['user_avatar'];
-				break;
-			case 3:
-				return $forum_url . $config['avatar_gallery_path'] . '/' . $user->data['user_avatar'];
-				break;
-			default:
-				return '';
-				break;
-		}
-	}
-	else
-	{
-		switch($tp)
-		{
-			case 1:
-				return $forum_url . 'download/file.php?avatar=' . $ua;
-				break;
-			case 2:
-				return $ua;
-				break;
-			case 3:
-				return $forum_url . $config['avatar_gallery_path'] . '/' . $ua;
-				break;
-			default:
-				return '';
-				break;
-		}
-	}
-
-	return '';
+	$ret= phpbb_get_user_avatar($user->data);
+	
+	return $ret;
 }
 
 /**

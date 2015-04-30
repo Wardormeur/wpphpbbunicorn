@@ -86,14 +86,6 @@ class WPPHPBBU_topics_widget extends WP_Widget
                 </p>
                 <p>
                     <label>
-                        <input name="<?php echo $this->get_field_name('wpphpbbu_show_total_posts'); ?>" type="checkbox" id="<?php echo $this->get_field_id('wpphpbbu_show_total_posts'); ?>" value="yes" <?php if ($instance['wpphpbbu_show_total_posts'] == "yes") { echo 'checked="checked" '; } ?> />&nbsp;
-                        <?php 
-                            echo _e('Display total replies', 'wpphpbbu');
-                        ?>
-                    </label>
-                </p>
-                <p>
-                    <label>
                         <input name="<?php echo $this->get_field_name('wpphpbbu_show_total_views'); ?>" type="checkbox" id="<?php echo $this->get_field_id('wpphpbbu_show_total_views'); ?>" value="yes" <?php if ($instance['wpphpbbu_show_total_views'] == "yes") { echo 'checked="checked" '; } ?> />&nbsp;
                         <?php 
                             echo _e('Display total views', 'wpphpbbu');
@@ -220,16 +212,6 @@ class WPPHPBBU_topics_widget extends WP_Widget
                             if($showTotalPosts == 'yes')
                             {
                         ?>
-                            <small>
-                                <?php 
-                                    _e('Replies:', 'wpphpbbu'); 
-                                ?> 
-                                <strong>
-                                    <?php 
-                                        echo $get_info['REPLIES']; 
-                                    ?>
-                                </strong>
-                            </small>
                         <?php
                             }
                         ?>
