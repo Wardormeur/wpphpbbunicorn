@@ -51,7 +51,6 @@ function user_get_id_name(&$user_id_ary, &$username_ary, $user_type = false)
         $sql .= ' AND ' . $db->sql_in_set('user_type', $user_type);
     }
     $result = $db->sql_query($sql);
-	var_dump($sql);
     if (!($row = $db->sql_fetchrow($result))) {
         $db->sql_freeresult($result);
         return 'NO_USERS';
