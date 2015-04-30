@@ -7,7 +7,7 @@ class WPPHPBBU_meta_widget extends WP_Widget
         /* Widget settings. */
         $widget_ops = array(
             'classname' => 'phpBB3 Meta Widget',
-            'description' => __('Allows you to display several usefull informations about the user.', 'wpbb')
+            'description' => __('Allows you to display several usefull informations about the user.', 'wpphpbbu')
         );
         
         /* Widget control settings. */
@@ -29,7 +29,7 @@ class WPPHPBBU_meta_widget extends WP_Widget
     function form($instance)
     {
         $defaults = array(
-                        'wpbb_meta_title' => __('Forum Meta', 'wpbb')
+                        'wpphpbbu_meta_title' => __('Forum Meta', 'wpphpbbu')
                     );
                     
         $instance = wp_parse_args(
@@ -40,12 +40,12 @@ class WPPHPBBU_meta_widget extends WP_Widget
         ?>
             <div class="widget-content">
                 <p>
-                    <label for="<?php echo $this->get_field_id('wpbb_meta_title') ?>">
+                    <label for="<?php echo $this->get_field_id('wpphpbbu_meta_title') ?>">
                         <?php 
-                            _e('Title:', 'wpbb'); 
+                            _e('Title:', 'wpphpbbu'); 
                         ?> 
                     </label>
-                    <input id="<?php echo $this->get_field_id('wpbb_meta_title'); ?>" name="<?php echo $this->get_field_name('wpbb_meta_title') ?>" type="text" value="<?php echo $instance['wpbb_meta_title']; ?>" class="widefat" />
+                    <input id="<?php echo $this->get_field_id('wpphpbbu_meta_title'); ?>" name="<?php echo $this->get_field_name('wpphpbbu_meta_title') ?>" type="text" value="<?php echo $instance['wpphpbbu_meta_title']; ?>" class="widefat" />
                 </p>
             </div>
         <?php
@@ -55,7 +55,7 @@ class WPPHPBBU_meta_widget extends WP_Widget
     {
         $instance = $old_instance;
         
-        $instance['wpbb_meta_title'] = $new_instance['wpbb_meta_title'];
+        $instance['wpphpbbu_meta_title'] = $new_instance['wpphpbbu_meta_title'];
         
         return $instance;
     }
@@ -64,12 +64,12 @@ class WPPHPBBU_meta_widget extends WP_Widget
     {
         extract($args);
 
-    	$title = $instance['wpbb_meta_title'];
+    	$title = $instance['wpphpbbu_meta_title'];
         
-        $ucp_url = trim(get_option('wpbb_ucp_path'));
-    	$admin_url = wpbb_get_admin_link();
-    	$mcp_url = wpbb_get_mcp_link();
-    	$permission_url = wpbb_get_restore_permissions_link();
+        $ucp_url = get_option('wpphpbbu_path').'ucp.php';
+    	$admin_url = wpphpbbu_get_admin_link();
+    	$mcp_url = wpphpbbu_get_mcp_link();
+    	$permission_url = wpphpbbu_get_restore_permissions_link();
         
     	if(empty($title))
     	{
@@ -81,20 +81,20 @@ class WPPHPBBU_meta_widget extends WP_Widget
         ?>
             <ul>
                 <?php
-                    if(wpbb_is_user_logged_in())
+                    if(wpphpbbu_is_user_logged_in())
                     {
                 ?>
                     <li>
                         <a href="<?php bloginfo('home'); ?>/wp-admin/">
                             <?php 
-                                echo _e('Blog control panel', 'wpbb'); 
+                                echo _e('Blog control panel', 'wpphpbbu'); 
                             ?>
                         </a>
                     </li>
                 	<li>
                         <a href="<?php echo $ucp_url; ?>">
                             <?php 
-                                echo _e('User control panel', 'wpbb'); 
+                                echo _e('User control panel', 'wpphpbbu'); 
                             ?>
                         </a>
                     </li>
@@ -105,7 +105,7 @@ class WPPHPBBU_meta_widget extends WP_Widget
                             <li>
                                 <a href="<?php echo $mcp_url; ?>">
                                     <?php 
-                                        echo _e('Moderator control panel', 'wpbb'); 
+                                        echo _e('Moderator control panel', 'wpphpbbu'); 
                                     ?>
                                 </a>
                             </li>
@@ -118,7 +118,7 @@ class WPPHPBBU_meta_widget extends WP_Widget
                             <li>
                                 <a href="<?php echo $admin_url; ?>">
                                     <?php 
-                                        echo _e('Forum administration', 'wpbb'); 
+                                        echo _e('Forum administration', 'wpphpbbu'); 
                                     ?>
                                 </a>
                             </li>
@@ -131,7 +131,7 @@ class WPPHPBBU_meta_widget extends WP_Widget
                             <li>
                                 <a href="<?php echo $permission_url; ?>">
                                     <?php 
-                                        echo _e('Restore permissions', 'wpbb'); 
+                                        echo _e('Restore permissions', 'wpphpbbu'); 
                                     ?>
                                 </a>
                             </li>
@@ -140,9 +140,9 @@ class WPPHPBBU_meta_widget extends WP_Widget
                         
                         ?>
                             <li>
-                                <a href="<?php echo $ucp_url; ?>?mode=logout&sid=<?php echo wpbb_get_sessionid(); ?>">
+                                <a href="<?php echo $ucp_url; ?>?mode=logout&sid=<?php echo wpphpbbu_get_sessionid(); ?>">
                                     <?php 
-                                        echo _e('Log out', 'wpbb'); 
+                                        echo _e('Log out', 'wpphpbbu'); 
                                     ?>
                                 </a>
                             </li>
@@ -155,21 +155,21 @@ class WPPHPBBU_meta_widget extends WP_Widget
                             <li>
                                 <a href="<?php echo $ucp_url; ?>?mode=sendpassword">
                                     <?php 
-                                        echo _e('I forgot my password', 'wpbb'); 
+                                        echo _e('I forgot my password', 'wpphpbbu'); 
                                     ?>
                                 </a>
                             </li>
                         	<li>
                                 <a href="<?php echo $ucp_url; ?>?mode=resend_act">
                                     <?php 
-                                        echo _e('Resend activation email', 'wpbb'); 
+                                        echo _e('Resend activation email', 'wpphpbbu'); 
                                     ?>
                                 </a>
                             </li>
                         	<li>
                                 <a href="<?php echo $ucp_url; ?>?mode=register">
                                     <?php 
-                                        echo _e('Register new account', 'wpbb'); 
+                                        echo _e('Register new account', 'wpphpbbu'); 
                                     ?>
                                 </a>
                             </li>
@@ -179,7 +179,7 @@ class WPPHPBBU_meta_widget extends WP_Widget
                 <li>
                     <a href="<?php echo $ucp_url; ?>?mode=delete_cookies">
                         <?php 
-                            echo _e('Delete site cookies', 'wpbb'); 
+                            echo _e('Delete site cookies', 'wpphpbbu'); 
                         ?>
                     </a>
                 </li>

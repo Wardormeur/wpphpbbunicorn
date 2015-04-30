@@ -7,7 +7,7 @@ class WPPHPBBU_topics_widget extends WP_Widget
         /* Widget settings. */
         $widget_ops = array(
             'classname' => 'phpBB3 Posts Widget',
-            'description' => __('Allows you to display a list of recent topics within a specific forum id\'s.', 'wpbb')
+            'description' => __('Allows you to display a list of recent topics within a specific forum id\'s.', 'wpphpbbu')
         );
 
         /* Widget control settings. */
@@ -29,13 +29,13 @@ class WPPHPBBU_topics_widget extends WP_Widget
     function form($instance)
     {
         $defaults = array(
-                        'wpbb_title' => __('Latest posts', 'wpbb'),
-        				'wpbb_forums' => 0,
-        				'wpbb_total' => '10',
-                        'wpbb_show_forum' => 'yes',
-                        'wpbb_show_username' => 'yes',
-                        'wpbb_show_total_posts' => 'yes',
-                        'wpbb_show_total_views' => 'yes'
+                        'wpphpbbu_title' => __('Latest posts', 'wpphpbbu'),
+        				'wpphpbbu_forums' => 0,
+        				'wpphpbbu_total' => '10',
+                        'wpphpbbu_show_forum' => 'yes',
+                        'wpphpbbu_show_username' => 'yes',
+                        'wpphpbbu_show_total_posts' => 'yes',
+                        'wpphpbbu_show_total_views' => 'yes'
                     );
             
         $instance = wp_parse_args(
@@ -46,57 +46,57 @@ class WPPHPBBU_topics_widget extends WP_Widget
         ?>
             <div class="widget-content">
                 <p>
-                    <label for="<?php echo $this->get_field_id('wpbb_title'); ?>">
+                    <label for="<?php echo $this->get_field_id('wpphpbbu_title'); ?>">
                         <?php 
-                            echo _e('Title:', 'wpbb'); 
+                            echo _e('Title:', 'wpphpbbu'); 
                         ?>
                     </label>
-                    <input class="widefat" id="<?php echo $this->get_field_id('wpbb_title'); ?>" name="<?php echo $this->get_field_name('wpbb_title'); ?>" type="text" value="<?php echo $instance['wpbb_title']; ?>" />
+                    <input class="widefat" id="<?php echo $this->get_field_id('wpphpbbu_title'); ?>" name="<?php echo $this->get_field_name('wpphpbbu_title'); ?>" type="text" value="<?php echo $instance['wpphpbbu_title']; ?>" />
                 </p>
                 <p>
-                    <label for="<?php echo $this->get_field_id('wpbb_forums'); ?>">
-                        <?php echo _e('Forums:', 'wpbb'); ?>
+                    <label for="<?php echo $this->get_field_id('wpphpbbu_forums'); ?>">
+                        <?php echo _e('Forums:', 'wpphpbbu'); ?>
                     </label>
-                    <input class="widefat" name="<?php echo $this->get_field_name('wpbb_forums'); ?>" type="text" id="<?php echo $this->get_field_id('wpbb_forums'); ?>" value="<?php echo $instance['wpbb_forums']; ?>" />
-                    <small><?php _e('Enter the id of the forum you like to get topics from. You can get topics from more than one forums by seperating the forums id with commas. ex: 3,5,6,12','wpbb'); ?></small>
+                    <input class="widefat" name="<?php echo $this->get_field_name('wpphpbbu_forums'); ?>" type="text" id="<?php echo $this->get_field_id('wpphpbbu_forums'); ?>" value="<?php echo $instance['wpphpbbu_forums']; ?>" />
+                    <small><?php _e('Enter the id of the forum you like to get topics from. You can get topics from more than one forums by seperating the forums id with commas. ex: 3,5,6,12','wpphpbbu'); ?></small>
                 </p>
                 <p>
-                    <label for="<?php echo $this->get_field_id('wpbb_total'); ?>">
+                    <label for="<?php echo $this->get_field_id('wpphpbbu_total'); ?>">
                         <?php 
-                            echo _e('Total posts:', 'wpbb'); 
+                            echo _e('Total posts:', 'wpphpbbu'); 
                         ?>
                     </label>
-                    <input class="widefat" name="<?php echo $this->get_field_name('wpbb_total'); ?>" type="text" id="<?php echo $this->get_field_id('wpbb_total'); ?>" value="<?php echo $instance['wpbb_total']; ?>" />
+                    <input class="widefat" name="<?php echo $this->get_field_name('wpphpbbu_total'); ?>" type="text" id="<?php echo $this->get_field_id('wpphpbbu_total'); ?>" value="<?php echo $instance['wpphpbbu_total']; ?>" />
                 </p>
                 <p>
                     <label>
-                        <input name="<?php echo $this->get_field_name('wpbb_show_forum'); ?>" type="checkbox" id="<?php echo $this->get_field_id('wpbb_show_forum'); ?>" value="yes" <?php if ($instance['wpbb_show_forum'] == "yes") { echo 'checked="checked" '; } ?> />&nbsp;
+                        <input name="<?php echo $this->get_field_name('wpphpbbu_show_forum'); ?>" type="checkbox" id="<?php echo $this->get_field_id('wpphpbbu_show_forum'); ?>" value="yes" <?php if ($instance['wpphpbbu_show_forum'] == "yes") { echo 'checked="checked" '; } ?> />&nbsp;
                         <?php 
-                            echo _e('Display forum name', 'wpbb');
-                        ?>
-                    </label>
-                </p>
-                <p>
-                    <label>
-                        <input name="<?php echo $this->get_field_name('wpbb_show_username'); ?>" type="checkbox" id="<?php echo $this->get_field_id('wpbb_show_username'); ?>" value="yes" <?php if($instance['wpbb_show_username'] == "yes") { echo 'checked="checked" '; } ?> />&nbsp;
-                        <?php 
-                            echo _e('Display author name', 'wpbb');
+                            echo _e('Display forum name', 'wpphpbbu');
                         ?>
                     </label>
                 </p>
                 <p>
                     <label>
-                        <input name="<?php echo $this->get_field_name('wpbb_show_total_posts'); ?>" type="checkbox" id="<?php echo $this->get_field_id('wpbb_show_total_posts'); ?>" value="yes" <?php if ($instance['wpbb_show_total_posts'] == "yes") { echo 'checked="checked" '; } ?> />&nbsp;
+                        <input name="<?php echo $this->get_field_name('wpphpbbu_show_username'); ?>" type="checkbox" id="<?php echo $this->get_field_id('wpphpbbu_show_username'); ?>" value="yes" <?php if($instance['wpphpbbu_show_username'] == "yes") { echo 'checked="checked" '; } ?> />&nbsp;
                         <?php 
-                            echo _e('Display total replies', 'wpbb');
+                            echo _e('Display author name', 'wpphpbbu');
                         ?>
                     </label>
                 </p>
                 <p>
                     <label>
-                        <input name="<?php echo $this->get_field_name('wpbb_show_total_views'); ?>" type="checkbox" id="<?php echo $this->get_field_id('wpbb_show_total_views'); ?>" value="yes" <?php if ($instance['wpbb_show_total_views'] == "yes") { echo 'checked="checked" '; } ?> />&nbsp;
+                        <input name="<?php echo $this->get_field_name('wpphpbbu_show_total_posts'); ?>" type="checkbox" id="<?php echo $this->get_field_id('wpphpbbu_show_total_posts'); ?>" value="yes" <?php if ($instance['wpphpbbu_show_total_posts'] == "yes") { echo 'checked="checked" '; } ?> />&nbsp;
                         <?php 
-                            echo _e('Display total views', 'wpbb');
+                            echo _e('Display total replies', 'wpphpbbu');
+                        ?>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input name="<?php echo $this->get_field_name('wpphpbbu_show_total_views'); ?>" type="checkbox" id="<?php echo $this->get_field_id('wpphpbbu_show_total_views'); ?>" value="yes" <?php if ($instance['wpphpbbu_show_total_views'] == "yes") { echo 'checked="checked" '; } ?> />&nbsp;
+                        <?php 
+                            echo _e('Display total views', 'wpphpbbu');
                         ?>
                     </label>
                 </p>
@@ -108,71 +108,56 @@ class WPPHPBBU_topics_widget extends WP_Widget
     {
         $instance = $old_instance;
 
-        $instance['wpbb_title'] = $new_instance['wpbb_title'];
-        $instance['wpbb_forums'] = $new_instance['wpbb_forums'];
-        $instance['wpbb_total'] = $new_instance['wpbb_total'];
-        $instance['wpbb_show_forum'] = $new_instance['wpbb_show_forum'];
-        $instance['wpbb_show_username'] = $new_instance['wpbb_show_username'];
-        $instance['wpbb_show_total_posts'] = $new_instance['wpbb_show_total_posts'];
-        $instance['wpbb_show_total_views'] = $new_instance['wpbb_show_total_views'];
+        $instance['wpphpbbu_title'] = $new_instance['wpphpbbu_title'];
+        $instance['wpphpbbu_forums'] = $new_instance['wpphpbbu_forums'];
+        $instance['wpphpbbu_total'] = $new_instance['wpphpbbu_total'];
+        $instance['wpphpbbu_show_forum'] = $new_instance['wpphpbbu_show_forum'];
+        $instance['wpphpbbu_show_username'] = $new_instance['wpphpbbu_show_username'];
+        $instance['wpphpbbu_show_total_posts'] = $new_instance['wpphpbbu_show_total_posts'];
+        $instance['wpphpbbu_show_total_views'] = $new_instance['wpphpbbu_show_total_views'];
         
         return $instance;
     }
     
     function widget($args, $instance)
     {
-        global $wpdb, $phpbb_root_path, $phpEx, $auth, $user, $db, $config, $cache, $template;
+        global $wpdb, $phpbb_root_path, $phpEx, $auth, $user, $db, $config, $cache, $template, $table_prefix;
         
         extract($args);
 
-        $title = $instance['wpbb_title'];
-        $forums = $instance['wpbb_forums'];
-        $total = $instance['wpbb_total'];
-        $showForum = $instance['wpbb_show_forum'];
-        $showUsername = $instance['wpbb_show_username'];
-        $showTotalPosts = $instance['wpbb_show_total_posts'];
-        $showTotalViews = $instance['wpbb_show_total_views'];
+        $title = $instance['wpphpbbu_title'];
+        $forums = $instance['wpphpbbu_forums'];
+        $total = $instance['wpphpbbu_total'];
+        $showForum = $instance['wpphpbbu_show_forum'];
+        $showUsername = $instance['wpphpbbu_show_username'];
+        $showTotalPosts = $instance['wpphpbbu_show_total_posts'];
+        $showTotalViews = $instance['wpphpbbu_show_total_views'];
         
+		
         echo $before_widget . $before_title . $title . $after_title;
         
-        $phpbb_config = trim(get_option('wpbb_config_path'));
-    	$phpEx = substr(strrchr($phpbb_config, '.'), 1);
-        $forum_url = str_replace("/ucp.php", "/", trim(get_option('wpbb_ucp_path')));
-    
-    	require($phpbb_config);
-        
+		$forum_url = get_option('wpphpbbu_path');
+		
+    	
         // TODO : Next Version, to get connected with phpBB $db object in order to retrive the
         //        forum posts. Also to remove the database encoding from plugin options
         
-        $cn = mysql_pconnect($dbhost . ":" . $dbport, $dbuser, $dbpasswd);
-    
-        mysql_set_charset(get_option('wpbb_dbms_charset'), $cn);
         
-        if($cn)
-        {
-            if(@mysql_select_db($dbname))
-            {
-                $qr = "SELECT p.`topic_id` AS `ID`, p2.`forum_name` AS `FORUM`, p.`forum_id` AS `FORUM_ID`, p.`topic_title` AS `TITLE`, p.`topic_views` AS `VIEWS`, p.`topic_replies` AS `REPLIES`, `username_clean` AS `USERNAME`, p.`topic_poster` AS `USER_ID`, p.`topic_time` AS `TIME`
-    FROM " . $table_prefix . "topics p
-    LEFT JOIN " . $table_prefix . "forums p2 ON(p.`forum_id` = p2.`forum_id`)
-    LEFT JOIN " . $table_prefix . "users p3 ON(p.`topic_poster` = p3.`user_id`)
-    WHERE p.`forum_id` IN (" . $forums . ") ORDER BY p.`topic_time` DESC LIMIT " . $total;
-    
-                $rs = mysql_query($qr, $cn);
-                
-            }
-        }
-        
-        if($rs)
-        {
+		$qr = "SELECT p.`topic_id` AS `ID`, p2.`forum_name` AS `FORUM`, p.`forum_id` AS `FORUM_ID`, p.`topic_title` AS `TITLE`, p.`topic_views` AS `VIEWS`, `username_clean` AS `USERNAME`, p.`topic_poster` AS `USER_ID`, p.`topic_time` AS `TIME`
+		FROM " . $table_prefix . "topics p
+		LEFT JOIN " . $table_prefix . "forums p2 ON(p.`forum_id` = p2.`forum_id`)
+		LEFT JOIN " . $table_prefix . "users p3 ON(p.`topic_poster` = p3.`user_id`)
+		WHERE p.`forum_id` IN (" . $forums . ") ORDER BY p.`topic_time` DESC LIMIT " . $total;
+
+		$rs = $db->sql_query($qr);
         ?>
             <ul>
                 <?php
-                    while($get_info = mysql_fetch_assoc($rs))
-                    {
+				while($get_info = $rs->fetch_assoc())
+                    { 
                 ?>
                     <li>
-                        <a rel="nofollow" href="<?php echo $forum_url; ?>viewtopic.php?f=<?php echo $get_info['FORUM_ID'] ?>&t=<?php echo $get_info['ID']; ?>" title="<?php echo __('View post','wpbb'); ?>">
+                        <a rel="nofollow" href="<?php echo $forum_url; ?>viewtopic.php?f=<?php echo $get_info['FORUM_ID'] ?>&t=<?php echo $get_info['ID']; ?>" title="<?php echo __('View post','wpphpbbu'); ?>">
                             <?php echo $get_info['TITLE']; ?>
                         </a>
                         <br />
@@ -182,9 +167,9 @@ class WPPHPBBU_topics_widget extends WP_Widget
                         ?>
                             <small>
                                 <?php 
-                                    echo __('Forum:', 'wpbb');
+                                    echo __('Forum:', 'wpphpbbu');
                                 ?> 
-                                <a rel="nofollow" href="<?php echo $forum_url; ?>viewforum.php?f=<?php echo $get_info['FORUM_ID']; ?>" title="<?php echo __('Go to forum', 'wpbb'); ?>">
+                                <a rel="nofollow" href="<?php echo $forum_url; ?>viewforum.php?f=<?php echo $get_info['FORUM_ID']; ?>" title="<?php echo __('Go to forum', 'wpphpbbu'); ?>">
                                     <?php 
                                         echo $get_info['FORUM']; 
                                     ?>
@@ -199,9 +184,9 @@ class WPPHPBBU_topics_widget extends WP_Widget
                         ?>
                             <small>
                                 <?php 
-                                    echo __('By:', 'wpbb'); 
+                                    echo __('By:', 'wpphpbbu'); 
                                 ?>
-                                <a rel="nofollow" href="<?php echo $forum_url; ?>memberlist.php?mode=viewprofile&u=<?php echo $get_info['USER_ID']; ?>" title="<?php echo __('View user info', 'wpbb'); ?>">
+                                <a rel="nofollow" href="<?php echo $forum_url; ?>memberlist.php?mode=viewprofile&u=<?php echo $get_info['USER_ID']; ?>" title="<?php echo __('View user info', 'wpphpbbu'); ?>">
                                     <?php 
                                         echo $get_info['USERNAME']; 
                                     ?>
@@ -216,7 +201,7 @@ class WPPHPBBU_topics_widget extends WP_Widget
                         ?>
                             <small>
                                 <?php 
-                                    _e('Views:', 'wpbb'); 
+                                    _e('Views:', 'wpphpbbu'); 
                                 ?> 
                                 <strong>
                                     <?php 
@@ -237,7 +222,7 @@ class WPPHPBBU_topics_widget extends WP_Widget
                         ?>
                             <small>
                                 <?php 
-                                    _e('Replies:', 'wpbb'); 
+                                    _e('Replies:', 'wpphpbbu'); 
                                 ?> 
                                 <strong>
                                     <?php 
@@ -254,7 +239,6 @@ class WPPHPBBU_topics_widget extends WP_Widget
                 ?>
             </ul>
         <?php
-        }
         
         echo $after_widget;
     }

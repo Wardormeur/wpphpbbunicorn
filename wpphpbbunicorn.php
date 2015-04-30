@@ -10,6 +10,7 @@
  */
 use Symfony\Component\ClassLoader\UniversalClassLoader;
 
+//needed for classes proxy
 require_once __DIR__.'/lib/ClassLoader/UniversalClassLoader.php';
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/SafeFunction.php';
@@ -203,28 +204,6 @@ class Unicorn{
 			$phpbb_path = $GLOBALS['phpbb_root_path'];
 			
 			
-			//echo 'path:' .__DIR__.'||||||||&'.$_SERVER['SCRIPT_NAME'];
-		
-			//root
-			//$phpbb_root_path = $GLOBALS['phpbb_root_path'] ='../tn-3.1.3/';//$this->getRelativePath($_SERVER['SCRIPT_NAME'],$S_SERVER['BASE_DIR']).$this->getRelativePath(__DIR__,$phpbb_root_path);
-			//wp-admin
-			//$phpbb_root_path = $GLOBALS['phpbb_root_path'] ='/tn-3.1.3/';//$this->getRelativePath($_SERVER['SCRIPT_NAME'],$S_SERVER['BASE_DIR']).$this->getRelativePath(__DIR__,$phpbb_root_path);
-			
-			
-			
-			
-			//echo ABSPATH.'-';
-			//echo $this->getRelativePath(__DIR__,ABSPATH).'-';
-			//echo $phpbb_root_path;
-			//$GLOBALS['phpbb_root_path'] = $phpbb_root_path ;//= $this->getRelativePath(__DIR__,get_home_path()).$phpbb_root_path;
-			
-			
-			
-			//we need the absolute path, however  fpcontent doesnt work with ":" so we're trying UNC path
-			/*if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-					$GLOBALS['phpbb_root_path'] = $phpbb_root_path = '\\\\localhost\d$\\Dev\UniServerZ\www\tn-3.1.3'."\\"; //gosh.
-			
-			}*/
 			$traverser_path->addVisitor(new PathFixer("\$phpbb_root_path \. \'includes/functions_content.\' \. \$phpEx",
 													[ //ALAS we cant predict what kind of data you're gonna replace it with. so, you're gonna have to learn the types :(
 													//PLus, we consider you do nothing but concatenating those string 
@@ -274,21 +253,11 @@ class Unicorn{
     function phpbb_includes()
     {	
 		//Symfo part; do we really need it?
-		$loader = new UniversalClassLoader();
-
-		$loader->registerNamespaces(array(
-			'Sf2Plugins'           => __DIR__.'/src',
-			'Symfony'			=>	__DIR__.'\..\..\..\tn-.3.1.3\vendor\symfony',
-			'phpbb'				=>	__DIR__.'\..\..\..\tn-.3.1.3\phpbb'
-		));
-
-		$loader->register();	
-		
+			
 		//PHPBB init part
 		define('IN_PHPBB', true);
 		//minimal conf
 		//putenv('PHPBB_NO_COMPOSER_AUTOLOAD=1');
-		global $db;
 		global $phpbb_container;
 		global $phpbb_root_path, $phpEx, $user, $auth, $cache, $db, $config, $template, $table_prefix;	
 		global $request;
@@ -299,6 +268,7 @@ class Unicorn{
 		require_once(__DIR__ . '\cache\common.php');
 		
 		require_once($phpbb_root_path . 'includes/utf/utf_normalizer.php');
+		require_once($phpbb_root_path.'phpbb/user.php');
 		require_once(__DIR__ .'\cache\functions_user.php');
 		
 		$request->enable_super_globals();    
@@ -322,41 +292,11 @@ class Unicorn{
             }
 	}
 
-	function getRelativePath($from, $to)
-{
-    // some compatibility fixes for Windows paths
-    $from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
-    $to   = is_dir($to)   ? rtrim($to, '\/') . '/'   : $to;
-    $from = str_replace('\\', '/', $from);
-    $to   = str_replace('\\', '/', $to);
-
-    $from     = explode('/', $from);
-    $to       = explode('/', $to);
-    $relPath  = $to;
-
-    foreach($from as $depth => $dir) {
-        // find first non-matching dir
-        if($dir === $to[$depth]) {
-            // ignore this directory
-            array_shift($relPath);
-        } else {
-            // get number of remaining dirs to $from
-            $remaining = count($from) - $depth;
-            if($remaining > 1) {
-                // add traversals up to first matching dir
-                $padLength = (count($relPath) + $remaining - 1) * -1;
-                $relPath = array_pad($relPath, $padLength, '..');
-                break;
-            } else {
-                $relPath[0] = './' . $relPath[0];
-            }
-        }
-    }
-    return implode('/', $relPath);
-}
 	
 	
 	function init_widget(){
+		require_once __DIR__.'/inc/wpbb_functions.php';
+	
 		// Load WP phpBB Bridge widget
         require_once('inc/widgets/WPPHPBBU_users_widget.php');
         
@@ -411,8 +351,6 @@ class Unicorn{
 		// Get session ID
 		$session_id = $this->load_session_id();
 		
-		echo $session_id;
-		
 		// Check redirect
 		$this->check_redirect($session_id);
 	
@@ -429,14 +367,12 @@ class Unicorn{
             define('IN_PHPBB', true);
         }
         
-        $phpbb_config = trim(get_option('WPPHPBBU_config_path'));       // Get config path from options  
+        $phpbb_config = trim(get_option('wpphpbbu_path'));       // Get config path from options  
 
-		/*var_dump($user);
-		echo "testlog".$userid . is_user_logged_in();
-		echo 'test'.$userid.'sd'. $user->ID;
-*/
+		$user = new user();
+		$user->session_begin();
+		
 		if(!is_user_logged_in()){
-			$user->session_begin();
 
 			$userid = $this->get_userid();                                          // Get user ID
 			
@@ -446,9 +382,7 @@ class Unicorn{
 			if($userid > 0 )                                         // If user ID is bigger than 0 and user ID is not equal with the current user ID
 			{
 				wp_clear_auth_cookie();
-				//echo "authed";
 				$wpuser = wp_set_current_user($userid);                                       // Set the current user
-				//var_dump($wpuser);
 				wp_set_auth_cookie($userid, true, false);  
 			}
         }
@@ -520,12 +454,12 @@ class Unicorn{
 	}
 	  function activate()
 	{
-		do_action('WPPHPBBU_activated');
+		do_action('wpphpbbu_activated');
 	}
 
 	function deactivate()
 	{
-		do_action('WPPHPBBU_deactivated');
+		do_action('wpphpbbu_deactivated');
 	}
 	
 }
