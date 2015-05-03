@@ -373,15 +373,7 @@ class Unicorn{
 		 
 		if(!is_user_logged_in()){
 		
-			$user = new \phpbb\user();
-			$auth = new \phpbb\auth\auth();
-			$auth->acl($user->data);                                                // Assign user permission on Auth ACL method
-			$user->setup('search');
-			
 			$userid = $this->get_userid();                                          // Get user ID
-			
-			echo "testlog".$userid . is_user_logged_in();
-			echo 'test'.$userid.'sd'. $user->ID;
 			
 			if($userid > 0 )                                         // If user ID is bigger than 0 and user ID is not equal with the current user ID
 			{
