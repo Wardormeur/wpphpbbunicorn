@@ -41,7 +41,7 @@ class Unicorn{
         // Do actions before run the plugin
         
 		// in case path is wrong (or unset), we still want to be able to access the admin panel
-		if(  get_option( 'wpphpbbu_path', false )  ){
+		if( $this->is_path_ok()  ){
 		
 			try{
 				$this->set_cache();
@@ -111,7 +111,24 @@ class Unicorn{
 		return !empty($files)?$files[0]:"";
     }
     
-	
+		
+	function prepare_phpbb_path($phpbb_root_path){
+			$thispath = explode('\\', str_replace('/','\\', dirname(__FILE__)));
+			$rootpath = explode('\\', str_replace('/','\\', dirname($_SERVER["SCRIPT_FILENAME"])));
+			$relpath = array();
+			$dotted = 0;
+			for ($i = 0; $i < count($rootpath); $i++) {
+				if ($i >= count($thispath)) {
+					$dotted++;
+				}
+				elseif ($thispath[$i] != $rootpath[$i]) {
+					$relpath[] = $thispath[$i]; 
+					$dotted++;
+				}
+			}
+		return $GLOBALS['phpbb_root_path'] = $phpbb_root_path =str_repeat('../', $dotted).$phpbb_root_path;
+		
+	}
 	
 	function register_events(){
 		 // Call add_post when creating new WordPress post, to create a new forum topic
@@ -128,22 +145,8 @@ class Unicorn{
 		$GLOBALS['phpbb_root_path'] = get_option( 'wpphpbbu_path', false );	
 		$GLOBALS['phpEx'] = 'php';
 		
-		$thispath = explode('\\', str_replace('/','\\', dirname(__FILE__)));
-			$rootpath = explode('\\', str_replace('/','\\', dirname($_SERVER["SCRIPT_FILENAME"])));
-			$relpath = array();
-			$dotted = 0;
-			for ($i = 0; $i < count($rootpath); $i++) {
-				if ($i >= count($thispath)) {
-					$dotted++;
-				}
-				elseif ($thispath[$i] != $rootpath[$i]) {
-					$relpath[] = $thispath[$i]; 
-					$dotted++;
-				}
-			}
-		$GLOBALS['phpbb_root_path'] = $phpbb_root_path =str_repeat('../', $dotted).$phpbb_root_path;
-			
-		
+				
+		$GLOBALS['phpbb_root_path'] = $phpbb_root_path = $this->prepare_phpbb_path($phpbb_root_path);
 		
 		//fix make_clickable
 		
@@ -459,6 +462,11 @@ class Unicorn{
 	{
 		do_action('wpphpbbu_deactivated');
 	}
+	
+	function is_path_ok(){
+		return file_exists( $this->prepare_phpbb_path(get_option( 'wpphpbbu_path', false )).'includes/functions_content.php');
+	}
+
 	
 }
 
