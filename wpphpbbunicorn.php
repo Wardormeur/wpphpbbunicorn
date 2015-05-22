@@ -8,13 +8,28 @@
   Author: Wardormeur
   Author URI: uheuheuheuhe
  */
+
 use Symfony\Component\ClassLoader\UniversalClassLoader;
 
+ require_once __DIR__.'/inc/wpbb_functions.php';
+
+require_once __DIR__.'/inc/Path.php';
+require_once __DIR__.'/inc/PhpbbSession.php';
+
 //needed for classes proxy
+
 require_once __DIR__.'/lib/ClassLoader/UniversalClassLoader.php';
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/SafeFunction.php';
 require_once __DIR__.'/PathFixer.php';
+
+use PhpParser;
+require_once __DIR__.'/inc/ClassProxy.php';
+
+
+
+
+
 
 
 class Unicorn{
@@ -25,6 +40,8 @@ class Unicorn{
     var $name = "WP phpBB Unicorn";
 	
 	var $version = "0.1";
+	
+	var $path = "";
 
 	public function __construct()
     {
@@ -41,17 +58,23 @@ class Unicorn{
         // Do actions before run the plugin
         
 		// in case path is wrong (or unset), we still want to be able to access the admin panel
-		if( $this->is_path_ok()  ){
+		add_action('wpphpbbu_changed', array($this,'changed'));
+	
+		if( is_path_ok() && is_cache_ok() ){
 		
 			try{
-				$this->set_cache();
 				$this->start();
 				$this->phpbb_includes();
 				$this->init_widget();
 				
 				// Do init actions
 				add_action('init', array($this, 'start_integration'));      // Start application integration
+				//redirect pages
+				add_action('init', function(){ wpphpbbu\Path::login_page();});
+				add_action('wp_logout', function(){ wpphpbbu\Path::logout_page();});
 				add_action( 'add_meta_boxes', array( $this, 'add_meta_box' ) );
+				
+				
 			}catch(Exception $e){
 			
 			}
@@ -112,131 +135,15 @@ class Unicorn{
     }
     
 		
-	function prepare_phpbb_path($phpbb_root_path){
-			$thispath = explode('\\', str_replace('/','\\', dirname(__FILE__)));
-			$rootpath = explode('\\', str_replace('/','\\', dirname($_SERVER["SCRIPT_FILENAME"])));
-			$relpath = array();
-			$dotted = 0;
-			for ($i = 0; $i < count($rootpath); $i++) {
-				if ($i >= count($thispath)) {
-					$dotted++;
-				}
-				elseif ($thispath[$i] != $rootpath[$i]) {
-					$relpath[] = $thispath[$i]; 
-					$dotted++;
-				}
-			}
-		return $GLOBALS['phpbb_root_path'] = $phpbb_root_path =str_repeat('../', $dotted).$phpbb_root_path;
-		
-	}
+	
 	
 	function register_events(){
 		 // Call add_post when creating new WordPress post, to create a new forum topic
         add_action('wp_insert_post', 'add_post', 10, 2);
 	
 	}
+		
 	
-	function set_cache(){
-		
-		define('IN_PHPBB', true);
-		//hardpatch, w/e
-		$phpbb_root_path = get_option( 'wpphpbbu_path', false );	
-		$phpEx = 'php';
-		$GLOBALS['phpbb_root_path'] = get_option( 'wpphpbbu_path', false );	
-		$GLOBALS['phpEx'] = 'php';
-		
-				
-		$GLOBALS['phpbb_root_path'] = $phpbb_root_path = $this->prepare_phpbb_path($phpbb_root_path);
-		
-		//fix make_clickable
-		
-		$parser = new PhpParser\Parser(new PhpParser\Lexer);
-		$prettyPrinter = new PhpParser\PrettyPrinter\Standard;
-			try {
-				$searched_function[] = "make_clickable"; 
-			
-				$traverser_safety     = new PhpParser\NodeTraverser;
-				$traverser_safety->addVisitor(new SafeFunction($searched_function));
-				// parse
-				$raw = file_get_contents($phpbb_root_path.'includes/functions_content.'. $phpEx);
-				
-				$stmts = $parser->parse($raw);
-
-				// traverse
-				$stmts = $traverser_safety->traverse($stmts);
-
-				// pretty print
-				
-				$code = $prettyPrinter->prettyPrint($stmts);
-
-				file_put_contents(__DIR__.'/cache/functions_content.'.$phpEx,'<?php '.$code.' ?>');
-			} catch (PhpParser\Error $e) {
-				echo 'Parse Error: ', $e->getMessage();
-			}
-			
-			try {
-				$searched_function[] = "validate_username"; 
-			
-				$traverser_safety     = new PhpParser\NodeTraverser;
-				$traverser_safety->addVisitor(new SafeFunction($searched_function));
-				// parse
-				$raw = file_get_contents($phpbb_root_path.'includes/functions_user.'. $phpEx);
-				
-				$stmts = $parser->parse($raw);
-
-				// traverse
-				$stmts = $traverser_safety->traverse($stmts);
-
-				// pretty print
-				
-				$code = $prettyPrinter->prettyPrint($stmts);
-
-				file_put_contents(__DIR__.'/cache/functions_user.'.$phpEx,'<?php '.$code.' ?>');
-			} catch (PhpParser\Error $e) {
-				echo 'Parse Error: ', $e->getMessage();
-			}
-		
-		//unicorn code is actually useless, im bored. At least, it was a good exercise
-		
-		
-		
-		try{
-			$traverser_path     = new PhpParser\NodeTraverser;
-			//dont forget to escape the path, = preq_quote?
-			$mypath = __DIR__;
-			$phpbb_path = $GLOBALS['phpbb_root_path'];
-			
-			
-			$traverser_path->addVisitor(new PathFixer("\$phpbb_root_path \. \'includes/functions_content.\' \. \$phpEx",
-													[ //ALAS we cant predict what kind of data you're gonna replace it with. so, you're gonna have to learn the types :(
-													//PLus, we consider you do nothing but concatenating those string 
-														new PhpParser\Node\Scalar\String_($mypath.'/cache/functions_content.'),
-														new PhpParser\Node\Expr\Variable('phpEx')
-													])
-										); 
-			
-			//fix path to functions_content
-			$raw = file_get_contents($phpbb_root_path.'common.'. $phpEx);
-			// parse
-			$stmts = $parser->parse($raw);
-
-			// traverse
-			$stmts = $traverser_path->traverse($stmts);
-
-			// pretty print
-			
-			$code = $prettyPrinter->prettyPrint($stmts);
-
-			file_put_contents(__DIR__.'/cache/common.'.$phpEx,'<?php '.$code.' ?>');
-		} catch (PhpParser\Error $e) {
-			echo 'Parse Error: ', $e->getMessage();
-		}
-		
-		
-		
-		
-		
-	}
 	
 	
 	/**
@@ -267,14 +174,16 @@ class Unicorn{
 		global $phpbb_dispatcher;
 		global $symfony_request;
 		global $phpbb_filesystem;
-	
-		require_once(__DIR__ . '\cache\common.php');
+		
+		$phpEx = 'php';
+		
+		require_once(__DIR__ . '\inc\cache\common.php');
 		
 		require_once($phpbb_root_path . 'includes/utf/utf_normalizer.php');
-		require_once($phpbb_root_path.'phpbb/user.php');
 		require_once($phpbb_root_path.'phpbb/session.php');
+		require_once($phpbb_root_path.'phpbb/user.php');
 		require_once($phpbb_root_path.'phpbb/auth/auth.php');
-		require_once(__DIR__ .'\cache\functions_user.php');
+		require_once(__DIR__ .'\inc\cache\functions_user.php');
 		
 		$request->enable_super_globals();    
 		   
@@ -350,101 +259,14 @@ class Unicorn{
             )
         );
 	}
-    function start_integration()
+    
+	function start_integration()
     {
-		
 		// Get session ID
-		$session_id = $this->load_session_id();
+		$session_id = (new wpphpbbu\Session())->load_session_id();
 		
-		// Check redirect
-		$this->check_redirect($session_id);
-	
     }
     
-    // Initiate the phpBB session
-    private function load_session_id()
-    {
-		global $user, $auth,$phpbb_container;
-        
-        define('DEBUG',true);
-		
-        $phpbb_config = trim(get_option('wpphpbbu_path'));       // Get config path from options  
-
-
-		$user->session_begin();
-			
-		 
-		if(!is_user_logged_in()){
-		
-			$userid = $this->get_userid();                                          // Get user ID
-			
-			if($userid > 0 )                                         // If user ID is bigger than 0 and user ID is not equal with the current user ID
-			{
-				wp_clear_auth_cookie();
-				$wpuser = wp_set_current_user($userid);                                       // Set the current user
-				wp_set_auth_cookie($userid, true, false);  
-			}
-        }else{
-			//session_pagestart();
-		}
-        // Return current user session id
-        return $user->session_id;
-    }
-    
-    private function check_redirect($session_id)
-    {
-		global $phpbb_root_path, $user;
-        // Get current file name
-		//var_dump($user);
-    	$filename = strtolower(basename($_SERVER['SCRIPT_FILENAME']));
-    	
-        // If file name is wp-login.php and user is logged in
-    	/*if($filename == "wp-login.php" && is_user_logged_in())
-    	{
-            // Redirect user on phpBB UCP file with logout mode
-    		wp_redirect($phpbb_root_path .'ucp.php?mode=logout&sid=' . $session_id);
-    	}*/
-        // If file name is wp-login.php and user is not logged in
-    	if($filename == "wp-login.php" && !is_user_logged_in())
-    	{
-			// Redirect user on phpBB UCP file with login mode
-    		wp_redirect($phpbb_root_path .'ucp.php?mode=login&redirect=' . urlencode(get_bloginfo('home')));
-    	}
-        // If file name is wp-signup.php and user is not logged in
-    	else if($filename == "wp-signup.php" && !is_user_logged_in())
-    	{
-            // Redirect user on phpBB UCP file with register mode
-    		wp_redirect($phpbb_root_path .'ucp.php?mode=register');
-    	}
-    }
-    
-    private function get_userid()
-    { 
-        global $wpdb, $user;
-		global $phpbb_container;
-           
-        $userid = 0;                                            // Set userid to 0;
-        //var_dump($s_user);
-		// If current user type is normal user or the current user type is founder
-		if($user->data['user_type'] == USER_NORMAL || $user->data['user_type'] == USER_FOUNDER)
-        {
-            // List all users ID's where having meta_key of phpbb_userid and meta_value equal to current user id
-            $stat= $wpdb->prepare(
-                                "SELECT ID FROM $wpdb->users WHERE user_nicename = %s", 
-                                $user->data['username_clean'] );
-			
-			$id_list = $wpdb->get_col($stat);
-			
-			//should return only 1, this is a security failure
-			if(!empty($id_list))
-            {
-                $userid = $id_list[0];
-            }
-        }     
-		
-		return $userid;
-    }   
-	
 	
 	function uninstall()
 	{
@@ -462,12 +284,12 @@ class Unicorn{
 	{
 		do_action('wpphpbbu_deactivated');
 	}
+	function changed()
+	{	
+		if(get_option( 'wpphpbbu_path_ok', false ))
+			( new ClassProxy())->set_cache();
 	
-	function is_path_ok(){
-		return file_exists( $this->prepare_phpbb_path(get_option( 'wpphpbbu_path', false )).'includes/functions_content.php');
 	}
-
-	
 }
 
 global $unicorn;

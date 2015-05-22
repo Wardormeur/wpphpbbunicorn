@@ -26,9 +26,9 @@ class SafeFunction extends PhpParser\NodeVisitorAbstract
 	
 	private function encapsulate($node){
 		$encapsulated_node = 
-			new PhpParser\Node\Stmt\If_(
+			new Node\Stmt\If_(
 				new Expr\BooleanNot(
-					new PhpParser\Node\Expr\FuncCall(
+					new Node\Expr\FuncCall(
 						new Name\FullyQualified('function_exists'),
 						[
 							new Node\Arg(new Scalar\String_($node->name))
@@ -39,24 +39,6 @@ class SafeFunction extends PhpParser\NodeVisitorAbstract
 					'stmts' =>[$node]
 				]
 			);
-			/*Saved for memory, will be removed next commit  =
-			//looks like smthing's wrong with reinjecting a Stmt\Function with the enterNode event (infinite loop) and 
-				//in this event, adding the [$node] as a stmts return the content of the function, not the declaration itself
-				//so we patch it :)
-				,[
-					'stmts' =>[new PhpParser\Node\Stmt\Function_(
-									$node->name,
-									['byRef'=>$node->byRef,
-									'params'=>$node->params,
-									'returnType'=>$node->returnType,
-									'stmts'=>$node->stmts]
-								)
-							]
-				]
-			
-			
-			*/
-			
 			
 		return $encapsulated_node;
 	}

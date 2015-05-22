@@ -1,23 +1,14 @@
 <?php
 
 
-/**
- * Check if the Web Page exists
- */
-function page_exists($url)
-{
-    //return true;
-    $file_headers = @get_headers($url);
-    
-    if($file_headers[0] == 'HTTP/1.1 404 Not Found')
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
+
+	function is_path_ok(){
+		return file_exists( wpphpbbu\Path::prepare_phpbb_path(get_option( 'wpphpbbu_path', false )).'includes/functions_content.php');
+	}
+	function is_cache_ok(){
+		return file_exists( plugin_dir_path(__FILE__).'cache/functions_content.php');
+	}
+
 
 /**
  * Return the administration link for phpBB
@@ -616,5 +607,3 @@ function wp_generate_text_for_storage(&$text, &$uid, &$bitfield, &$flags, $allow
 
 	return;
 }
-
-?>

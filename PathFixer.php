@@ -41,10 +41,8 @@ class PathFixer extends PhpParser\NodeVisitorAbstract
 	//on leave node, if the full string have been found, we replace its content by our new one
 		if ( $node instanceof Node\Expr\Include_ ){
 			if($this->temp_path_string == $this->path_to_fix){	
-				//echo $this->temp_path_string ."||". $this->path_to_fix.'</br>';				
 				$node = $this->fixpath($node);
-				//echo '<pre>';var_dump($node);echo '</pre>';
-				$this->removePath($is_path);
+				//$this->removePath($is_path);
 				return $node;
 			}		
 		}

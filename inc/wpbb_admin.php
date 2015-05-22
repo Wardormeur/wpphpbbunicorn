@@ -56,12 +56,7 @@ class WPPHPBBU_AdminPanel
             }
             else
             {
-                /*if(!file_exists($_POST['wpphpbbu_path'].'/config.php'))
-                {
-                    $e->add('file_not_exists', __('The file config.php does not exists in the path you have enter', 'wpphpbbu'));
-                }*/
-                
-
+				
                 
                 $wpphpbbu_dbms_charset = $_POST['wpphpbbu_dbms_charset'];
                 $wpphpbbu_path = stripslashes($_POST['wpphpbbu_path']);
@@ -69,10 +64,19 @@ class WPPHPBBU_AdminPanel
                 $wpphpbbu_post_locked = isset($_POST['wpphpbbu_post_locked']) ? 'yes' : 'no';
                 
                 update_option('wpphpbbu_path', $wpphpbbu_path);
+				$is_path = is_path_ok();
+                if(!$is_path)
+                {
+                    $e->add('file_not_exists', __('The file config.php does not exists in the path you have enter', 'wpphpbbu'));
+				}
+				update_option('wpphpbbu_path_ok', $is_path);
+				
+				do_action('wpphpbbu_changed');
                 update_option('wpphpbbu_dbms_charset', $wpphpbbu_dbms_charset);
                 update_option('wpphpbbu_post_posts', $wpphpbbu_post_posts);
                 update_option('wpphpbbu_post_locked', $wpphpbbu_post_locked);
-            }
+			
+			}
         }
         
      	$wpphpbbu_path = trim(get_option('wpphpbbu_path', ABSPATH . 'phpbb3/config.php'));

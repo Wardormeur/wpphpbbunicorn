@@ -29,10 +29,9 @@
                                             <td valign="top">
                                                 <strong>
                                                     <?php 
-                                                        echo get_option(
-                                                                'wpphpbbu_config_path', 
-                                                                __('The path to phpbb directory is not set yet', 'wpphpbbu')
-                                                            ); 
+                                                        echo get_option('wpphpbbu_path_ok',false)?
+																get_option('wpphpbbu_path','') :
+																__('The path to phpbb directory is not set yet', 'wpphpbbu') ; 
                                                     ?>
                                                 </strong>
                                                 <br />
