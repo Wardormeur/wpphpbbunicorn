@@ -6,7 +6,14 @@
 		return file_exists( wpphpbbu\Path::prepare_phpbb_path(get_option( 'wpphpbbu_path', false )).'includes/functions_content.php');
 	}
 	function is_cache_ok(){
-		return file_exists( plugin_dir_path(__FILE__).'cache/functions_content.php');
+		$return = false;
+		if(
+			file_exists( plugin_dir_path(__FILE__).'cache/functions_content.php') && filesize(plugin_dir_path(__FILE__).'cache/functions_content.php') > 1024 
+			&& file_exists( plugin_dir_path(__FILE__).'cache/common.php') && filesize(plugin_dir_path(__FILE__).'cache/common.php') > 1024
+			&& file_exists( plugin_dir_path(__FILE__).'cache/functions_user.php') && filesize(plugin_dir_path(__FILE__).'cache/functions_user.php') > 1024
+		)
+				$return = true;
+		return $return;
 	}
 
 

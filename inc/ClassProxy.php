@@ -1,5 +1,6 @@
 <?php
 
+namespace wpphpbbu;
 
 class ClassProxy{
 
@@ -25,13 +26,13 @@ class ClassProxy{
 		
 		//fix make_clickable
 		
-		$parser = new PhpParser\Parser(new PhpParser\Lexer);
-		$prettyPrinter = new PhpParser\PrettyPrinter\Standard;
+		$parser = new \PhpParser\Parser(new \PhpParser\Lexer);
+		$prettyPrinter = new \PhpParser\PrettyPrinter\Standard;
 				try {
 				$searched_function[] = "make_clickable"; 
 			
-				$traverser_safety     = new PhpParser\NodeTraverser;
-				$traverser_safety->addVisitor(new SafeFunction($searched_function));
+				$traverser_safety     = new \PhpParser\NodeTraverser;
+				$traverser_safety->addVisitor(new \SafeFunction($searched_function));
 				// parse
 				$raw = file_get_contents($phpbb_root_path.'includes/functions_content.'. $phpEx);
 				
@@ -49,8 +50,8 @@ class ClassProxy{
 			try {
 				$searched_function[] = "validate_username"; 
 			
-				$traverser_safety     = new PhpParser\NodeTraverser;
-				$traverser_safety->addVisitor(new SafeFunction($searched_function));
+				$traverser_safety     = new \PhpParser\NodeTraverser;
+				$traverser_safety->addVisitor(new \SafeFunction($searched_function));
 				// parse
 				$raw = file_get_contents($phpbb_root_path.'includes/functions_user.'. $phpEx);
 				
@@ -61,7 +62,7 @@ class ClassProxy{
 				
 				$code = $prettyPrinter->prettyPrint($stmts);
 				file_put_contents(__DIR__.'/cache/functions_user.'.$phpEx,'<?php '.$code.' ?>');
-			} catch (PhpParser\Error $e) {
+			} catch (\PhpParser\Error $e) {
 				echo 'Parse Error: ', $e->getMessage();
 			}
 		
@@ -70,15 +71,15 @@ class ClassProxy{
 		
 		
 		try{
-			$traverser_path     = new PhpParser\NodeTraverser;
+			$traverser_path     = new \PhpParser\NodeTraverser;
 			//dont forget to escape the path, = preq_quote?
 			$mypath = __DIR__;	
 			
-			$traverser_path->addVisitor(new PathFixer("\$phpbb_root_path \. \'includes/functions_content.\' \. \$phpEx",
+			$traverser_path->addVisitor(new \PathFixer("\$phpbb_root_path \. \'includes/functions_content.\' \. \$phpEx",
 													[ //ALAS we cant predict what kind of data you're gonna replace it with. so, you're gonna have to learn the types :(
 													//PLus, we consider you do nothing but concatenating those string 
-														new PhpParser\Node\Scalar\String_($mypath.'/cache/functions_content.'),
-														new PhpParser\Node\Expr\Variable('phpEx')
+														new \PhpParser\Node\Scalar\String_($mypath.'/cache/functions_content.'),
+														new \PhpParser\Node\Expr\Variable('phpEx')
 													])
 										); 
 			
@@ -92,7 +93,7 @@ class ClassProxy{
 			
 			$code = $prettyPrinter->prettyPrint($stmts);
 			file_put_contents(__DIR__.'/cache/common.'.$phpEx,'<?php '.$code.' ?>');
-		} catch (PhpParser\Error $e) {
+		} catch (\PhpParser\Error $e) {
 			echo 'Parse Error: ', $e->getMessage();
 		}
 	}

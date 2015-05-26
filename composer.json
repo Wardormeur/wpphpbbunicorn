@@ -1,5 +1,8 @@
 {
     "require": {
-        "nikic/php-parser": "~1.2"
+        "phpunit/phpunit": "~4.6"
+    },
+    "autoload": {
     }
+
 }

@@ -16,11 +16,13 @@ class SafeFunction extends PhpParser\NodeVisitorAbstract
 
 
     public function leaveNode(Node $node) {
-        $is_function = array_search($node->name,$this->functions);
-		if ( $node instanceof Stmt\Function_ && $is_function!== FALSE){	
-			$node = $this->encapsulate($node);
-			$this->removeFunction($is_function);
-			return $node;
+		if($node instanceof Stmt\Function_){
+		$is_function = array_search($node->name,$this->functions);
+			if ( $is_function!== FALSE){	
+				$node = $this->encapsulate($node);
+				$this->removeFunction($is_function);
+				return $node;
+			}
 		}
 	}
 	

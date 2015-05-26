@@ -9,6 +9,7 @@
   Author URI: uheuheuheuhe
  */
 
+
 use Symfony\Component\ClassLoader\UniversalClassLoader;
 
  require_once __DIR__.'/inc/wpbb_functions.php';
@@ -20,10 +21,11 @@ require_once __DIR__.'/inc/PhpbbSession.php';
 
 require_once __DIR__.'/lib/ClassLoader/UniversalClassLoader.php';
 require_once __DIR__.'/vendor/autoload.php';
+//We had to exclude from composer it to allow a better export of the plugin (sub-tree)
+require_once __DIR__.'/vendor/nikic/php-parser/lib/bootstrap.php';
 require_once __DIR__.'/SafeFunction.php';
 require_once __DIR__.'/PathFixer.php';
 
-use PhpParser;
 require_once __DIR__.'/inc/ClassProxy.php';
 
 
@@ -287,7 +289,7 @@ class Unicorn{
 	function changed()
 	{	
 		if(get_option( 'wpphpbbu_path_ok', false ))
-			( new ClassProxy())->set_cache();
+			( new wpphpbbu\ClassProxy())->set_cache();
 	
 	}
 }
