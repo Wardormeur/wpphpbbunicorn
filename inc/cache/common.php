@@ -58,7 +58,7 @@ $phpbb_adm_relative_path = isset($phpbb_adm_relative_path) ? $phpbb_adm_relative
 $phpbb_admin_path = defined('PHPBB_ADMIN_PATH') ? PHPBB_ADMIN_PATH : $phpbb_root_path . $phpbb_adm_relative_path;
 // Include files
 require $phpbb_root_path . 'includes/functions.' . $phpEx;
-require 'D:\\Dev\\UniServerZ\\www\\awordpress\\wp-content\\plugins\\wp-phpbb-unicorn\\inc/cache/functions_content.' . $phpEx;
+require 'D:\\Dev\\UniServerZ\\www\\qwp\\wp-content\\plugins\\wp-phpbb-unicorn\\inc/cache/functions_content.' . $phpEx;
 include $phpbb_root_path . 'includes/functions_compatibility.' . $phpEx;
 require $phpbb_root_path . 'includes/constants.' . $phpEx;
 require $phpbb_root_path . 'includes/utf/utf_tools.' . $phpEx;

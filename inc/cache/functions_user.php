@@ -94,7 +94,7 @@ function user_update_name($old_name, $new_name)
     $update_ary = array(FORUMS_TABLE => array('forum_last_poster_name'), MODERATOR_CACHE_TABLE => array('username'), POSTS_TABLE => array('post_username'), TOPICS_TABLE => array('topic_first_poster_name', 'topic_last_poster_name'));
     foreach ($update_ary as $table => $field_ary) {
         foreach ($field_ary as $field) {
-            $sql = "UPDATE {$table}\n\t\t\t\tSET {$field} = '" . $db->sql_escape($new_name) . "'\n\t\t\t\tWHERE {$field} = '" . $db->sql_escape($old_name) . '\'';
+            $sql = "UPDATE {$table}\r\n\t\t\t\tSET {$field} = '" . $db->sql_escape($new_name) . "'\r\n\t\t\t\tWHERE {$field} = '" . $db->sql_escape($old_name) . '\'';
             $db->sql_query($sql);
         }
     }
@@ -245,7 +245,7 @@ function user_add($user_row, $cp_data = false, $notifications_data = null)
  */
 function user_delete($mode, $user_ids, $retain_username = true)
 {
-    global $cache, $config, $db, $user, $phpbb_dispatcher;
+    global $cache, $config, $db, $user, $phpbb_dispatcher, $phpbb_container;
     global $phpbb_root_path, $phpEx;
     $db->sql_transaction('begin');
     $user_rows = array();
@@ -322,12 +322,32 @@ function user_delete($mode, $user_ids, $retain_username = true)
     // Remove reports
     $db->sql_query('DELETE FROM ' . REPORTS_TABLE . ' WHERE ' . $user_id_sql);
     $num_users_delta = 0;
+    // Get auth provider collection in case accounts might need to be unlinked
+    $provider_collection = $phpbb_container->get('auth.provider_collection');
     // Some things need to be done in the loop (if the query changes based
     // on which user is currently being deleted)
     $added_guest_posts = 0;
     foreach ($user_rows as $user_id => $user_row) {
         if ($user_row['user_avatar'] && $user_row['user_avatar_type'] == 'avatar.driver.upload') {
             avatar_delete('user', $user_row);
+        }
+        // Unlink accounts
+        foreach ($provider_collection as $provider_name => $auth_provider) {
+            $provider_data = $auth_provider->get_auth_link_data($user_id);
+            if ($provider_data !== null) {
+                $link_data = array('user_id' => $user_id, 'link_method' => 'user_delete');
+                // BLOCK_VARS might contain hidden fields necessary for unlinking accounts
+                if (isset($provider_data['BLOCK_VARS']) && is_array($provider_data['BLOCK_VARS'])) {
+                    foreach ($provider_data['BLOCK_VARS'] as $provider_service) {
+                        if (!array_key_exists('HIDDEN_FIELDS', $provider_service)) {
+                            $provider_service['HIDDEN_FIELDS'] = array();
+                        }
+                        $auth_provider->unlink_account(array_merge($link_data, $provider_service['HIDDEN_FIELDS']));
+                    }
+                } else {
+                    $auth_provider->unlink_account($link_data);
+                }
+            }
         }
         // Decrement number of users if this user is active
         if ($user_row['user_type'] != USER_INACTIVE && $user_row['user_type'] != USER_IGNORE) {
@@ -346,16 +366,16 @@ function user_delete($mode, $user_ids, $retain_username = true)
                 if ($user_row['user_type'] != USER_INACTIVE || $user_row['user_inactive_reason'] != INACTIVE_REGISTER || $user_row['user_posts']) {
                     // When we delete these users and retain the posts, we must assign all the data to the guest user
                     $sql = 'UPDATE ' . FORUMS_TABLE . '
-						SET forum_last_poster_id = ' . ANONYMOUS . ', forum_last_poster_name = \'' . $db->sql_escape($post_username) . "', forum_last_poster_colour = ''\n\t\t\t\t\t\tWHERE forum_last_poster_id = {$user_id}";
+						SET forum_last_poster_id = ' . ANONYMOUS . ', forum_last_poster_name = \'' . $db->sql_escape($post_username) . "', forum_last_poster_colour = ''\r\n\t\t\t\t\t\tWHERE forum_last_poster_id = {$user_id}";
                     $db->sql_query($sql);
                     $sql = 'UPDATE ' . POSTS_TABLE . '
-						SET poster_id = ' . ANONYMOUS . ', post_username = \'' . $db->sql_escape($post_username) . "'\n\t\t\t\t\t\tWHERE poster_id = {$user_id}";
+						SET poster_id = ' . ANONYMOUS . ', post_username = \'' . $db->sql_escape($post_username) . "'\r\n\t\t\t\t\t\tWHERE poster_id = {$user_id}";
                     $db->sql_query($sql);
                     $sql = 'UPDATE ' . TOPICS_TABLE . '
-						SET topic_poster = ' . ANONYMOUS . ', topic_first_poster_name = \'' . $db->sql_escape($post_username) . "', topic_first_poster_colour = ''\n\t\t\t\t\t\tWHERE topic_poster = {$user_id}";
+						SET topic_poster = ' . ANONYMOUS . ', topic_first_poster_name = \'' . $db->sql_escape($post_username) . "', topic_first_poster_colour = ''\r\n\t\t\t\t\t\tWHERE topic_poster = {$user_id}";
                     $db->sql_query($sql);
                     $sql = 'UPDATE ' . TOPICS_TABLE . '
-						SET topic_last_poster_id = ' . ANONYMOUS . ', topic_last_poster_name = \'' . $db->sql_escape($post_username) . "', topic_last_poster_colour = ''\n\t\t\t\t\t\tWHERE topic_last_poster_id = {$user_id}";
+						SET topic_last_poster_id = ' . ANONYMOUS . ', topic_last_poster_name = \'' . $db->sql_escape($post_username) . "', topic_last_poster_colour = ''\r\n\t\t\t\t\t\tWHERE topic_last_poster_id = {$user_id}";
                     $db->sql_query($sql);
                     // Since we change every post by this author, we need to count this amount towards the anonymous user
                     if ($user_row['user_posts']) {
@@ -397,7 +417,7 @@ function user_delete($mode, $user_ids, $retain_username = true)
     $table_ary = array(USERS_TABLE, USER_GROUP_TABLE, TOPICS_WATCH_TABLE, FORUMS_WATCH_TABLE, ACL_USERS_TABLE, TOPICS_TRACK_TABLE, TOPICS_POSTED_TABLE, FORUMS_TRACK_TABLE, PROFILE_FIELDS_DATA_TABLE, MODERATOR_CACHE_TABLE, DRAFTS_TABLE, BOOKMARKS_TABLE, SESSIONS_KEYS_TABLE, PRIVMSGS_FOLDER_TABLE, PRIVMSGS_RULES_TABLE);
     // Delete the miscellaneous (non-post) data for the user
     foreach ($table_ary as $table) {
-        $sql = "DELETE FROM {$table}\n\t\t\tWHERE " . $user_id_sql;
+        $sql = "DELETE FROM {$table}\r\n\t\t\tWHERE " . $user_id_sql;
         $db->sql_query($sql);
     }
     $cache->destroy('sql', MODERATOR_CACHE_TABLE);
@@ -448,6 +468,8 @@ function user_delete($mode, $user_ids, $retain_username = true)
         include $phpbb_root_path . 'includes/functions_privmsgs.' . $phpEx;
     }
     phpbb_delete_users_pms($user_ids);
+    $phpbb_notifications = $phpbb_container->get('notification_manager');
+    $phpbb_notifications->delete_notifications('notification.type.admin_activate_user', $user_ids);
     $db->sql_transaction('commit');
     /**
      * Event after a user is deleted
@@ -474,7 +496,7 @@ function user_delete($mode, $user_ids, $retain_username = true)
 */
 function user_active_flip($mode, $user_id_ary, $reason = INACTIVE_MANUAL)
 {
-    global $config, $db, $user, $auth;
+    global $config, $db, $user, $auth, $phpbb_dispatcher;
     $deactivated = $activated = 0;
     $sql_statements = array();
     if (!is_array($user_id_ary)) {
@@ -503,6 +525,20 @@ function user_active_flip($mode, $user_id_ary, $reason = INACTIVE_MANUAL)
         $sql_statements[$row['user_id']] = $sql_ary;
     }
     $db->sql_freeresult($result);
+    /**
+     * Check or modify activated/deactivated users data before submitting it to the database
+     *
+     * @event core.user_active_flip_before
+     * @var	string	mode			User type changing mode, can be: flip|activate|deactivate
+     * @var	int		reason			Reason for changing user type, can be: INACTIVE_REGISTER|INACTIVE_PROFILE|INACTIVE_MANUAL|INACTIVE_REMIND
+     * @var	int		activated		The number of users to be activated
+     * @var	int		deactivated		The number of users to be deactivated
+     * @var	array	user_id_ary		Array with user ids to change user type
+     * @var	array	sql_statements	Array with users data to submit to the database, keys: user ids, values: arrays with user data
+     * @since 3.1.4-RC1
+     */
+    $vars = array('mode', 'reason', 'activated', 'deactivated', 'user_id_ary', 'sql_statements');
+    extract($phpbb_dispatcher->trigger_event('core.user_active_flip_before', compact($vars)));
     if (sizeof($sql_statements)) {
         foreach ($sql_statements as $user_id => $sql_ary) {
             $sql = 'UPDATE ' . USERS_TABLE . '
@@ -512,6 +548,20 @@ function user_active_flip($mode, $user_id_ary, $reason = INACTIVE_MANUAL)
         }
         $auth->acl_clear_prefetch(array_keys($sql_statements));
     }
+    /**
+     * Perform additional actions after the users have been activated/deactivated
+     *
+     * @event core.user_active_flip_after
+     * @var	string	mode			User type changing mode, can be: flip|activate|deactivate
+     * @var	int		reason			Reason for changing user type, can be: INACTIVE_REGISTER|INACTIVE_PROFILE|INACTIVE_MANUAL|INACTIVE_REMIND
+     * @var	int		activated		The number of users to be activated
+     * @var	int		deactivated		The number of users to be deactivated
+     * @var	array	user_id_ary		Array with user ids to change user type
+     * @var	array	sql_statements	Array with users data to submit to the database, keys: user ids, values: arrays with user data
+     * @since 3.1.4-RC1
+     */
+    $vars = array('mode', 'reason', 'activated', 'deactivated', 'user_id_ary', 'sql_statements');
+    extract($phpbb_dispatcher->trigger_event('core.user_active_flip_after', compact($vars)));
     if ($deactivated) {
         set_config_count('num_users', $deactivated * -1, true);
     }
@@ -713,7 +763,7 @@ function user_ban($mode, $ban, $ban_len, $ban_len_other, $ban_exclude, $ban_reas
     }
     // Fetch currently set bans of the specified type and exclude state. Prevent duplicate bans.
     $sql_where = $type == 'ban_userid' ? 'ban_userid <> 0' : "{$type} <> ''";
-    $sql = "SELECT {$type}\n\t\tFROM " . BANLIST_TABLE . "\n\t\tWHERE {$sql_where}\n\t\t\tAND ban_exclude = " . (int) $ban_exclude;
+    $sql = "SELECT {$type}\r\n\t\tFROM " . BANLIST_TABLE . "\r\n\t\tWHERE {$sql_where}\r\n\t\t\tAND ban_exclude = " . (int) $ban_exclude;
     $result = $db->sql_query($sql);
     // Reset $sql_where, because we use it later...
     $sql_where = '';
@@ -779,7 +829,7 @@ function user_ban($mode, $ban, $ban_len, $ban_len_other, $ban_exclude, $ban_reas
                     break;
             }
             if (isset($sql_where) && $sql_where) {
-                $sql = 'DELETE FROM ' . SESSIONS_TABLE . "\n\t\t\t\t\t{$sql_where}";
+                $sql = 'DELETE FROM ' . SESSIONS_TABLE . "\r\n\t\t\t\t\t{$sql_where}";
                 $db->sql_query($sql);
                 if ($mode == 'user') {
                     $sql = 'DELETE FROM ' . SESSIONS_KEYS_TABLE . ' ' . (in_array('*', $banlist_ary) ? '' : 'WHERE ' . $db->sql_in_set('user_id', $banlist_ary));
@@ -900,7 +950,7 @@ function user_ipwhois($ip)
     }
     $match = array();
     // Test for referrals from $whois_host to other whois databases, roll on rwhois
-    if (preg_match('#ReferralServer: whois://(.+)#im', $ipwhois, $match)) {
+    if (preg_match('#ReferralServer:[\\x20]*whois://(.+)#im', $ipwhois, $match)) {
         if (strpos($match[1], ':') !== false) {
             $pos = strrpos($match[1], ':');
             $server = substr($match[1], 0, $pos);
@@ -1564,11 +1614,11 @@ function group_create(&$group_id, $type, $name, $desc, $group_attributes, $allow
                 remove_default_rank($group_id, $user_ary);
             }
             $sql = 'UPDATE ' . GROUPS_TABLE . '
-				SET ' . $db->sql_build_array('UPDATE', $sql_ary) . "\n\t\t\t\tWHERE group_id = {$group_id}";
+				SET ' . $db->sql_build_array('UPDATE', $sql_ary) . "\r\n\t\t\t\tWHERE group_id = {$group_id}";
             $db->sql_query($sql);
             // Since we may update the name too, we need to do this on other tables too...
             $sql = 'UPDATE ' . MODERATOR_CACHE_TABLE . '
-				SET group_name = \'' . $db->sql_escape($sql_ary['group_name']) . "'\n\t\t\t\tWHERE group_id = {$group_id}";
+				SET group_name = \'' . $db->sql_escape($sql_ary['group_name']) . "'\r\n\t\t\t\tWHERE group_id = {$group_id}";
             $db->sql_query($sql);
             // One special case is the group skip auth setting. If this was changed we need to purge permissions for this group
             if (isset($group_attributes['group_skip_auth'])) {
@@ -1663,7 +1713,7 @@ function group_correct_avatar($group_id, $old_entry)
     $avatar_path = $phpbb_root_path . $config['avatar_path'];
     if (@rename($avatar_path . '/' . $old_filename, $avatar_path . '/' . $new_filename)) {
         $sql = 'UPDATE ' . GROUPS_TABLE . '
-			SET group_avatar = \'' . $db->sql_escape($new_entry) . "'\n\t\t\tWHERE group_id = {$group_id}";
+			SET group_avatar = \'' . $db->sql_escape($new_entry) . "'\r\n\t\t\tWHERE group_id = {$group_id}";
         $db->sql_query($sql);
     }
 }
@@ -1693,7 +1743,7 @@ function group_delete($group_id, $group_name = false)
         $user_id_ary = $username_ary = array();
         // Batch query for group members, call group_user_del
         $sql = 'SELECT u.user_id, u.username
-			FROM ' . USER_GROUP_TABLE . ' ug, ' . USERS_TABLE . " u\n\t\t\tWHERE ug.group_id = {$group_id}\n\t\t\t\tAND u.user_id = ug.user_id";
+			FROM ' . USER_GROUP_TABLE . ' ug, ' . USERS_TABLE . " u\r\n\t\t\tWHERE ug.group_id = {$group_id}\r\n\t\t\t\tAND u.user_id = ug.user_id";
         $result = $db->sql_query_limit($sql, 200, $start);
         if ($row = $db->sql_fetchrow($result)) {
             do {
@@ -1721,10 +1771,10 @@ function group_delete($group_id, $group_name = false)
     } catch (\phpbb\groupposition\exception $exception) {
     }
     // Delete group
-    $sql = 'DELETE FROM ' . GROUPS_TABLE . "\n\t\tWHERE group_id = {$group_id}";
+    $sql = 'DELETE FROM ' . GROUPS_TABLE . "\r\n\t\tWHERE group_id = {$group_id}";
     $db->sql_query($sql);
     // Delete auth entries from the groups table
-    $sql = 'DELETE FROM ' . ACL_GROUPS_TABLE . "\n\t\tWHERE group_id = {$group_id}";
+    $sql = 'DELETE FROM ' . ACL_GROUPS_TABLE . "\r\n\t\tWHERE group_id = {$group_id}";
     $db->sql_query($sql);
     /**
      * Event after a group is deleted
@@ -1761,7 +1811,7 @@ function group_user_add($group_id, $user_id_ary = false, $username_ary = false, 
     // Remove users who are already members of this group
     $sql = 'SELECT user_id, group_leader
 		FROM ' . USER_GROUP_TABLE . '
-		WHERE ' . $db->sql_in_set('user_id', $user_id_ary) . "\n\t\t\tAND group_id = {$group_id}";
+		WHERE ' . $db->sql_in_set('user_id', $user_id_ary) . "\r\n\t\t\tAND group_id = {$group_id}";
     $result = $db->sql_query($sql);
     $add_id_ary = $update_id_ary = array();
     while ($row = $db->sql_fetchrow($result)) {
@@ -1789,7 +1839,7 @@ function group_user_add($group_id, $user_id_ary = false, $username_ary = false, 
     if (sizeof($update_id_ary)) {
         $sql = 'UPDATE ' . USER_GROUP_TABLE . '
 			SET group_leader = 1
-			WHERE ' . $db->sql_in_set('user_id', $update_id_ary) . "\n\t\t\t\tAND group_id = {$group_id}";
+			WHERE ' . $db->sql_in_set('user_id', $update_id_ary) . "\r\n\t\t\t\tAND group_id = {$group_id}";
         $db->sql_query($sql);
     }
     if ($default) {
@@ -1860,7 +1910,7 @@ function group_user_del($group_id, $user_id_ary = false, $username_ary = false, 
     // What special group memberships exist for these users?
     $sql = 'SELECT g.group_id, g.group_name, ug.user_id
 		FROM ' . USER_GROUP_TABLE . ' ug, ' . GROUPS_TABLE . ' g
-		WHERE ' . $db->sql_in_set('ug.user_id', $user_id_ary) . "\n\t\t\tAND g.group_id = ug.group_id\n\t\t\tAND g.group_id <> {$group_id}\n\t\t\tAND g.group_type = " . GROUP_SPECIAL . '
+		WHERE ' . $db->sql_in_set('ug.user_id', $user_id_ary) . "\r\n\t\t\tAND g.group_id = ug.group_id\r\n\t\t\tAND g.group_id <> {$group_id}\r\n\t\t\tAND g.group_type = " . GROUP_SPECIAL . '
 		ORDER BY ug.user_id, g.group_id';
     $result = $db->sql_query($sql);
     $temp_ary = array();
@@ -1896,7 +1946,7 @@ function group_user_del($group_id, $user_id_ary = false, $username_ary = false, 
      */
     $vars = array('group_id', 'group_name', 'user_id_ary', 'username_ary');
     extract($phpbb_dispatcher->trigger_event('core.group_delete_user_before', compact($vars)));
-    $sql = 'DELETE FROM ' . USER_GROUP_TABLE . "\n\t\tWHERE group_id = {$group_id}\n\t\t\tAND " . $db->sql_in_set('user_id', $user_id_ary);
+    $sql = 'DELETE FROM ' . USER_GROUP_TABLE . "\r\n\t\tWHERE group_id = {$group_id}\r\n\t\t\tAND " . $db->sql_in_set('user_id', $user_id_ary);
     $db->sql_query($sql);
     // Clear permissions cache of relevant users
     $auth->acl_clear_prefetch($user_id_ary);
@@ -1993,7 +2043,7 @@ function group_user_attributes($action, $group_id, $user_id_ary = false, $userna
         case 'demote':
         case 'promote':
             $sql = 'SELECT user_id
-				FROM ' . USER_GROUP_TABLE . "\n\t\t\t\tWHERE group_id = {$group_id}\n\t\t\t\t\tAND user_pending = 1\n\t\t\t\t\tAND " . $db->sql_in_set('user_id', $user_id_ary);
+				FROM ' . USER_GROUP_TABLE . "\r\n\t\t\t\tWHERE group_id = {$group_id}\r\n\t\t\t\t\tAND user_pending = 1\r\n\t\t\t\t\tAND " . $db->sql_in_set('user_id', $user_id_ary);
             $result = $db->sql_query_limit($sql, 1);
             $not_empty = $db->sql_fetchrow($result);
             $db->sql_freeresult($result);
@@ -2001,7 +2051,7 @@ function group_user_attributes($action, $group_id, $user_id_ary = false, $userna
                 return 'NO_VALID_USERS';
             }
             $sql = 'UPDATE ' . USER_GROUP_TABLE . '
-				SET group_leader = ' . ($action == 'promote' ? 1 : 0) . "\n\t\t\t\tWHERE group_id = {$group_id}\n\t\t\t\t\tAND user_pending = 0\n\t\t\t\t\tAND " . $db->sql_in_set('user_id', $user_id_ary);
+				SET group_leader = ' . ($action == 'promote' ? 1 : 0) . "\r\n\t\t\t\tWHERE group_id = {$group_id}\r\n\t\t\t\t\tAND user_pending = 0\r\n\t\t\t\t\tAND " . $db->sql_in_set('user_id', $user_id_ary);
             $db->sql_query($sql);
             $log = $action == 'promote' ? 'LOG_GROUP_PROMOTED' : 'LOG_GROUP_DEMOTED';
             break;
@@ -2022,7 +2072,7 @@ function group_user_attributes($action, $group_id, $user_id_ary = false, $userna
             if (!sizeof($user_id_ary)) {
                 return false;
             }
-            $sql = 'UPDATE ' . USER_GROUP_TABLE . "\n\t\t\t\tSET user_pending = 0\n\t\t\t\tWHERE group_id = {$group_id}\n\t\t\t\t\tAND " . $db->sql_in_set('user_id', $user_id_ary);
+            $sql = 'UPDATE ' . USER_GROUP_TABLE . "\r\n\t\t\t\tSET user_pending = 0\r\n\t\t\t\tWHERE group_id = {$group_id}\r\n\t\t\t\t\tAND " . $db->sql_in_set('user_id', $user_id_ary);
             $db->sql_query($sql);
             $phpbb_notifications = $phpbb_container->get('notification_manager');
             $phpbb_notifications->add_notifications('notification.type.group_request_approved', array('user_ids' => $user_id_ary, 'group_id' => $group_id, 'group_name' => $group_name));
@@ -2032,7 +2082,7 @@ function group_user_attributes($action, $group_id, $user_id_ary = false, $userna
         case 'default':
             // We only set default group for approved members of the group
             $sql = 'SELECT user_id
-				FROM ' . USER_GROUP_TABLE . "\n\t\t\t\tWHERE group_id = {$group_id}\n\t\t\t\t\tAND user_pending = 0\n\t\t\t\t\tAND " . $db->sql_in_set('user_id', $user_id_ary);
+				FROM ' . USER_GROUP_TABLE . "\r\n\t\t\t\tWHERE group_id = {$group_id}\r\n\t\t\t\t\tAND user_pending = 0\r\n\t\t\t\t\tAND " . $db->sql_in_set('user_id', $user_id_ary);
             $result = $db->sql_query($sql);
             $user_id_ary = $username_ary = array();
             while ($row = $db->sql_fetchrow($result)) {
@@ -2118,7 +2168,7 @@ function group_set_user_default($group_id, $user_id_ary, $group_attributes = fal
     // Were group attributes passed to the function? If not we need to obtain them
     if ($group_attributes === false) {
         $sql = 'SELECT ' . implode(', ', array_keys($attribute_ary)) . '
-			FROM ' . GROUPS_TABLE . "\n\t\t\tWHERE group_id = {$group_id}";
+			FROM ' . GROUPS_TABLE . "\r\n\t\t\tWHERE group_id = {$group_id}";
         $result = $db->sql_query($sql);
         $group_attributes = $db->sql_fetchrow($result);
         $db->sql_freeresult($result);
@@ -2386,7 +2436,7 @@ function phpbb_get_banned_user_ids($user_ids = array(), $ban_end = true)
     // Ignore stale bans which were not wiped yet
     $banned_ids_list = array();
     $sql = 'SELECT ban_userid
-		FROM ' . BANLIST_TABLE . "\n\t\tWHERE {$sql_user_ids}\n\t\t\tAND ban_exclude <> 1";
+		FROM ' . BANLIST_TABLE . "\r\n\t\tWHERE {$sql_user_ids}\r\n\t\t\tAND ban_exclude <> 1";
     if ($ban_end === true) {
         // Banned currently
         $sql .= ' AND (ban_end > ' . time() . '

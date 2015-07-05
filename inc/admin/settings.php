@@ -26,42 +26,58 @@
     <form method="post" action="">
         <input type="hidden" name="action" value="update" />
         <input type="hidden" id="_wpnonce" name="_wpnonce" value="<?php echo wp_create_nonce('wpphpbbu_settings_page') ?>" />
-        
+
         <h3>
             <?php
-                
+
                 _e('Files options', 'wpphpbbu');
-            
+
             ?>
         </h3>
-        
+
         <table class="form-table">
             <tbody>
-                <tr valign="top">
+              <tr valign="top">
+                  <th scope="row">
+                      <label for="wpphpbbu_path">
+                          <?php
+                              _e('phpbb path', 'wpphpbbu');
+                          ?>
+                      </label>
+                  </th>
+                  <td>
+                      <input name="wpphpbbu_path" type="text" id="wpphpbbu_path" value="<?php echo $wpphpbbu_path; ?>" class="regular-text" />
+                      <br />
+                      <span class="description">
+                          <?php _e('Enter the absolute path to phpBB directory', 'wpphpbbu'); ?>
+                      </span>
+                  </td>
+              </tr>
+              <tr valign="top">
                     <th scope="row">
-                        <label for="wpphpbbu_path">
+                        <label for="wpphpbbu_url">
                             <?php
-                                _e('phpbb path', 'wpphpbbu');
+                                _e('phpbb url', 'wpphpbbu');
                             ?>
                         </label>
                     </th>
                     <td>
-                        <input name="wpphpbbu_path" type="text" id="wpphpbbu_path" value="<?php echo $wpphpbbu_path; ?>" class="regular-text" />
+                        <input name="wpphpbbu_url" type="text" id="wpphpbbu_url" value="<?php echo $wpphpbbu_url; ?>" class="regular-text" />
                         <br />
                         <span class="description">
-                            <?php _e('Enter the full path to phpBB directory', 'wpphpbbu'); ?>
+                            <?php _e('Enter the url of phpBB directory', 'wpphpbbu'); ?>
                         </span>
                     </td>
                 </tr>
             </tbody>
         </table>
-        
-       
+
+
         <h3>
             <?php
-                
+
                 _e('Forum posts options', 'wpphpbbu');
-            
+
             ?>
         </h3>
         <table class="form-table">
@@ -104,37 +120,10 @@
                         </span>
                     </td>
                 </tr>
-                <tr valign="top">
-                    <th scope="row">
-                        <label for="wpphpbbu_dbms_charset">
-                            <?php
-                                _e('phpBB database encoding', 'wpphpbbu');
-                            ?>
-                        </label>
-                    </th>
-                    <td>
-                        <select name="wpphpbbu_dbms_charset" id="wpphpbbu_dbms_charset">
-                            <?php
-                                $r = $wpdb->get_results('SELECT CHARACTER_SET_NAME FROM information_schema.CHARACTER_SETS ORDER BY CHARACTER_SET_NAME;');
-                            
-                                foreach($r as $rs)
-                                {
-                            ?>
-                                <option value="<?php echo $rs->CHARACTER_SET_NAME; ?>" <?php echo $wpphpbbu_dbms_charset == $rs->CHARACTER_SET_NAME ? 'selected="selected"' : ''; ?>><?php echo $rs->CHARACTER_SET_NAME; ?></option>
-                            <?php
-                                }
-                            ?>
-                        </select>
-                        <br />
-                        <span class="description">
-                            <?php _e('Select the database connection character set for phpBB', 'wpphpbbu'); ?>
-                        </span>
-                    </td>
-                </tr>
             </tbody>
         </table>
-      
-        
+
+
         <p class="submit">
             <input type="submit" name="submit" id="submit" class="button-primary" value="<?php _e('Save options', 'wpphpbbu'); ?>" />
         </p>

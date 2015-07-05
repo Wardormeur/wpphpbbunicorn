@@ -1,7 +1,7 @@
 <div class="wrap">
     <div id="wpphpbbu_admin_dashboard" class="icon32"></div>
     <h2><?php _e('WP phpBB Unicorn', 'wpphpbbu'); ?></h2>
-    
+
     <div id="dashboard-widgets-wrap" class="ngg-overview">
         <div id="dashboard-widgets" class="metabox-holder">
             <div id="post-body">
@@ -22,46 +22,47 @@
                                         </p>
                                     </div>
                                     <table>
-                                        <tr>
-                                            <td valign="top">
-                                                <?php _e('phpBB location', 'wpphpbbu'); ?> : 
-                                            </td>
-                                            <td valign="top">
-                                                <strong>
-                                                    <?php 
-                                                        echo get_option('wpphpbbu_path_ok',false)?
-																get_option('wpphpbbu_path','') :
-																__('The path to phpbb directory is not set yet', 'wpphpbbu') ; 
-                                                    ?>
-                                                </strong>
-                                                <br />
-                                                <br />
-                                            </td>
-                                        </tr>
+                                      <tr>
+                                          <td valign="top">
+                                              <?php _e('phpBB absolute path', 'wpphpbbu'); ?> :
+                                          </td>
+                                          <td valign="top">
+                                              <strong>
+                                                  <?php
+                                                      echo get_option('wpphpbbu_path_ok',false)?
+                              get_option('wpphpbbu_path','') :
+                              __('The path to phpbb directory is not set yet', 'wpphpbbu') ;
+                                                  ?>
+                                              </strong>
+                                              <br />
+                                              <br />
+                                          </td>
+                                      </tr>
+                                      <tr>
+                                          <td valign="top">
+                                              <?php _e('phpBB url', 'wpphpbbu'); ?> :
+                                          </td>
+                                          <td valign="top">
+                                              <strong>
+                                                  <?php
+                                                      echo get_option('wpphpbbu_path_ok',false)?
+                              get_option('wpphpbbu_url','') :
+                              __('The phpbb url is not set yet', 'wpphpbbu') ;
+                                                  ?>
+                                              </strong>
+                                              <br />
+                                              <br />
+                                          </td>
+                                      </tr>
                                        
                                         <tr>
                                             <td valign="top">
-                                                <?php _e('phpBB database encoding', 'wpphpbbu'); ?> : 
+                                                <?php _e('Autocreate forum topics', 'wpphpbbu'); ?> :
                                             </td>
                                             <td valign="top">
                                                 <strong>
-                                                    <?php 
-                                                        echo get_option('wpphpbbu_dbms_charset', 'utf8'); 
-                                                    ?>
-                                                </strong>
-                                                <br />
-                                                <br />
-                                            </td>
-                                        </tr>
-                                       
-                                        <tr>
-                                            <td valign="top">
-                                                <?php _e('Autocreate forum topics', 'wpphpbbu'); ?> : 
-                                            </td>
-                                            <td valign="top">
-                                                <strong>
-                                                    <?php 
-                                                        get_option('wpphpbbu_post_posts', 'no') == "no" ? _e('No', 'wpphpbbu') : _e('Yes', 'wpphpbbu'); 
+                                                    <?php
+                                                        get_option('wpphpbbu_post_posts', 'no') == "no" ? _e('No', 'wpphpbbu') : _e('Yes', 'wpphpbbu');
                                                     ?>
                                                 </strong>
                                                 <br />
@@ -70,12 +71,12 @@
                                         </tr>
                                         <tr>
                                             <td valign="top">
-                                                <?php _e('Autocreate forum topics on locked forums', 'wpphpbbu'); ?> : 
+                                                <?php _e('Autocreate forum topics on locked forums', 'wpphpbbu'); ?> :
                                             </td>
                                             <td valign="top">
                                                 <strong>
-                                                    <?php 
-                                                        get_option('wpphpbbu_post_locked', 'no') == "no" ? _e('No', 'wpphpbbu') : _e('Yes', 'wpphpbbu'); 
+                                                    <?php
+                                                        get_option('wpphpbbu_post_locked', 'no') == "no" ? _e('No', 'wpphpbbu') : _e('Yes', 'wpphpbbu');
                                                     ?>
                                                 </strong>
                                                 <br />
@@ -164,12 +165,12 @@
                                     </p>
                                 </div>
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
 </div>

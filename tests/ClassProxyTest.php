@@ -1,14 +1,13 @@
 <?php
 use wpphpbbu\ClassProxy;
 
-
-class ClassProxyTest extends \PHPUnit_Framework_TestCase
+class ClassProxyTest extends \WP_UnitTestCase
 {
 
 	public function testCacheIsCreated()
 	{
 	    $foo = true;
-	    $proxy = new \ClassProxy();
+	    $proxy = new ClassProxy();
 		$proxy->setCache();
 		$this->assertFileExists(__DIR__.'\..\cache\common.php');
 		
@@ -18,7 +17,7 @@ class ClassProxyTest extends \PHPUnit_Framework_TestCase
 	{
 	    $foo = true;
 	    $proxy = new ClassProxy();
-		$proxy->clean_folder();
+		$proxy->cleanFolder();
 		$this->assertFileNotExists(__DIR__.'\..\cache\common.php');
 		
 	}

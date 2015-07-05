@@ -3,12 +3,13 @@
 
 
 	function is_path_ok(){
-		return file_exists( wpphpbbu\Path::prepare_phpbb_path(get_option( 'wpphpbbu_path', false )).'includes/functions_content.php');
+		return file_exists( get_option( 'wpphpbbu_path', false ).'includes/functions_content.php');
 	}
+
 	function is_cache_ok(){
 		$return = false;
 		if(
-			file_exists( plugin_dir_path(__FILE__).'cache/functions_content.php') && filesize(plugin_dir_path(__FILE__).'cache/functions_content.php') > 1024 
+			file_exists( plugin_dir_path(__FILE__).'cache/functions_content.php') && filesize(plugin_dir_path(__FILE__).'cache/functions_content.php') > 1024
 			&& file_exists( plugin_dir_path(__FILE__).'cache/common.php') && filesize(plugin_dir_path(__FILE__).'cache/common.php') > 1024
 			&& file_exists( plugin_dir_path(__FILE__).'cache/functions_user.php') && filesize(plugin_dir_path(__FILE__).'cache/functions_user.php') > 1024
 		)
@@ -26,7 +27,7 @@ function wpphpbbu_get_admin_link()
 
 	if(is_object($auth) && method_exists($auth, 'acl_get') && $auth->acl_get('a_') && $user->data['is_registered'])
 	{
-		$forum_url = get_option('wppphpbbu_path');
+		$forum_url = get_option('wppphpbbu_url');
 		return $forum_url . 'adm/index.php?sid=' . $user->session_id;
 	}
 	else
@@ -41,11 +42,11 @@ function wpphpbbu_get_admin_link()
 function wpphpbbu_get_avatar($ua = "", $tp = null)
 {
 	global $config, $user,$phpbb_container;
-    
-	$forum_url = get_option('wppphpbbu_path');
-	
+
+	$forum_url = get_option('wppphpbbu_url');
+
 	$ret= phpbb_get_user_avatar($user->data);
-	
+
 	return $ret;
 }
 
@@ -53,8 +54,8 @@ function wpphpbbu_get_avatar($ua = "", $tp = null)
  * Getting the avatar from phpBB for WordPress internal use
  */
 function get_forum_avatar($avatar, $comment, $size)
-{   
-	
+{
+
     global $user, $db;
 
     if($comment->comment_author_email == '' || $comment->user_id == 0 || is_admin())
@@ -65,19 +66,19 @@ function get_forum_avatar($avatar, $comment, $size)
     {
 		$qr = "SELECT u.`user_avatar`, u.`user_avatar_type` FROM `" . $table_prefix  . "users` u WHERE u.`user_email` = '" . $comment->comment_author_email . "'";
 		$rs = $db->sql_query($qr);
-		
+
 		while($i = $rs->fetch_assoc())
 		{
-			$avatar = '<img 
-				alt="" 
-				src="' . wpphpbbu_get_avatar($i['user_avatar'], $i['user_avatar_type']) . '" 
-				class="avatar avatar-' . $size . ' photo" 
-				height="' . $size . '" 
+			$avatar = '<img
+				alt=""
+				src="' . wpphpbbu_get_avatar($i['user_avatar'], $i['user_avatar_type']) . '"
+				class="avatar avatar-' . $size . ' photo"
+				height="' . $size . '"
 				width="' . $size . '"
 			/>';
 		}
     }
-    
+
     return $avatar;
 }
 
@@ -93,9 +94,9 @@ function wpphpbbu_get_mcp_link()
 {
 	global $auth, $user, $phpbb_root_path, $phpEx;
 
-	if(is_object($auth) && method_exists($auth, 'acl_get') && $auth->acl_get('m_') && $user->data['is_registered'] && page_exists(trim(get_option('wpphpbbu_ucp_path'))))
+	if(is_object($auth) && method_exists($auth, 'acl_get') && $auth->acl_get('m_') && $user->data['is_registered'] )
 	{
-		$forum_url = get_option('wpphpbbu_path');
+		$forum_url = get_option('wpphpbbu_url');
 		return $forum_url . 'mcp.php?i=main&amp;mode=front&amp;sid=' . $user->session_id;
 	}
 	else
@@ -111,7 +112,7 @@ function wpphpbbu_get_restore_permissions_link()
 {
 	global $user, $auth;
 
-	if($user->data['user_perm_from'] && is_object($auth) && method_exists($auth, 'acl_get') && $auth->acl_get('a_switchperm') && page_exists(trim(get_option('wpphpbbu_ucp_path'))))
+	if($user->data['user_perm_from'] && is_object($auth) && method_exists($auth, 'acl_get') && $auth->acl_get('a_switchperm') )
 	{
 		return trim(get_option('wpphpbbu_ucp_path')) . '?mode=restore_perm&amp;sid=' . $user->session_id;
 	}
@@ -233,22 +234,22 @@ function is_200($url = "")
     {
         return false;
     }
-    
+
     $options['http'] = array(
         'method' => "HEAD",
         'ignore_errors' => 1,
         'max_redirects' => 0
     );
-    
+
     $body = file_get_contents($url, NULL, stream_context_create($options));
     sscanf($http_response_header[0], 'HTTP/%*d.%*d %d', $code);
-    
+
     return $code === 200;
 }
 
 
 /**
- * Check if the user is logged in 
+ * Check if the user is logged in
  */
 function wpphpbbu_is_user_logged_in()
 {
@@ -267,19 +268,19 @@ function aasort(&$array, $key, $r = false)
     $sorter = array();
     $ret = array();
     reset($array);
-    
+
     foreach($array as $ii => $va)
     {
         $sorter[$ii] = $va[$key];
     }
-    
-    $r == true ? arsort($sorter) : asort($sorter);  
-    
+
+    $r == true ? arsort($sorter) : asort($sorter);
+
     foreach($sorter as $ii => $va)
     {
         $ret[$ii] = $array[$ii];
     }
-    
+
     $array=$ret;
 }
 
@@ -288,21 +289,21 @@ function print_forum($forums = null)
     global $wpphpbbu_categories;
     global $forums_categories;
     $forums_categories = (array)$forums_categories;
-    
+
     static $b = 0;
     ++$b;
-    
+
     static $times = 1;
     static $current_parent = 0;
     $current_parent = $forums['PARENT'];
-    
+
     ?>
         <tr id="forum_<?php echo $forums['ID']; ?>" class="<?php echo $b % 2 == 0 ? "alternate " : "" ?>format-default" valign="top">
             <th scope="row" class="<?php echo $forums['TYPE'] == 0 ? "wpphpbbu_category" : "wpphpbbu_forum" ?>">
-                <?php 
-                    echo $forums['TYPE'] == 0 ? "" : '<div class="wpphpbbu_display_categories wpphpbbu_display_open"></div>'; 
+                <?php
+                    echo $forums['TYPE'] == 0 ? "" : '<div class="wpphpbbu_display_categories wpphpbbu_display_open"></div>';
                     echo ($forums['TYPE'] == 0 ? '' : str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $times)) . $forums['NAME'];
-                    
+
                     if($forums['TYPE'] == 1)
                     {
                     ?>
@@ -311,17 +312,17 @@ function print_forum($forums = null)
                         <br />
                         <?php
                             $val = "";
-                            
+
                             foreach($forums_categories as $fc)
                             {
                                 if($fc['forum'] == $forums['ID'])
                                 {
                                     $c_counter = 0;
-                                    
+
                                     foreach($fc['categories'] as $c)
                                     {
                                         ++$c_counter;
-                                        
+
                                         if($c_counter == 1)
                                         {
                                             $val = $c;
@@ -344,7 +345,7 @@ function print_forum($forums = null)
                     </div>
                     <?php
                     }
-                    
+
                     foreach($forums as &$forum)
                     {
                         if(is_array($forum))
@@ -361,7 +362,7 @@ function print_forum($forums = null)
                             {
                                 $times--;
                             }
-                                            
+
                             print_forum($forum);
                         }
                     }
@@ -374,7 +375,7 @@ function print_forum($forums = null)
 function print_array($array, $forum_id, $level = 0)
 {
     if(!is_array($array)) return;
-    
+
     $printed = false;
 
     foreach($array as $key => $value)
@@ -386,9 +387,9 @@ function print_array($array, $forum_id, $level = 0)
         else
         {
             if($printed){continue;}
-            
+
             global $forums_categories;
-            
+
             foreach($forums_categories as $fc)
             {
                 if($fc['forum'] == $forum_id)
@@ -399,7 +400,7 @@ function print_array($array, $forum_id, $level = 0)
                     }
                 }
             }
-            
+
             $printed = true;
             $level++;
     	    echo str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level);
@@ -416,10 +417,10 @@ function print_array($array, $forum_id, $level = 0)
 function print_category_tree($c, $forum_id)
 {
     global $forums_categories;
-    
+
     static $times = 0;
     static $last_id = 0;
-    
+
     foreach($c as $cat)
     {
         ?>
@@ -428,7 +429,7 @@ function print_category_tree($c, $forum_id)
         </label>
         <br />
         <?php
-        
+
         foreach($cat as $categ)
         {
             if(is_array($categ))
@@ -446,16 +447,16 @@ function print_category_tree($c, $forum_id)
 function add_post($id, $post)
 {
     global $user, $phpbb_root_path, $phpEx, $wpdb;
-    
+
     $current_user = wp_get_current_user();              // Get current user info
-    
+
     // If the user cannot create posts on forum then return.
     // This info is comming from WordPress administration panel
     if(!in_array($current_user->data->ID, (array)unserialize(get_option('wpphpbbu_users_posting'))) && $post->post_status == "publish")
     {
         return;
     }
-    
+
     // Check if that status of the current posts is publish
     if($post->post_status == "publish")
     {
@@ -465,7 +466,7 @@ function add_post($id, $post)
         $forum_categories = unserialize(get_option('wpphpbbu_forums_categories'));
         // Array that will hold the allowed forums IDs that will be created new post
         $add_to_forum = array();
-        
+
         // Loop through the forums
         foreach($forum_categories as $set)
         {
@@ -484,17 +485,17 @@ function add_post($id, $post)
                 }
             }
         }
-        
+
         // Create definition in order that is not already defined
         if(!defined('IN_PHPBB'))
         {
             // Creating the definition
             define('IN_PHPBB', true);
         }
-        
+
         // Import the utf tools from phpBB
         require($phpbb_root_path . 'includes/utf/utf_tools.php');
-        
+
         // Check if seo version exists, if phpbb_seo class not already exists or if not $phpbb_seo is set
         if(file_exists($phpbb_root_path . 'phpbb_seo/phpbb_seo_class.php') && class_exists('phpbb_seo') == false && isset($phpbb_seo) == false)
         {
@@ -502,24 +503,24 @@ function add_post($id, $post)
             require($phpbb_root_path . 'phpbb_seo/phpbb_seo_class.php');        // Load phpbb seo version class
             $phpbb_seo = new phpbb_seo();                                       // Initiate a new phpbb_seo() object
         }
-        
+
         // Import functions_posting.php
         require($phpbb_root_path . 'includes/functions_posting.php');
-        
+
         $post_content = $post->post_content;                                    // Getting post content
         $post_title = $post->post_title;                                        // Getting post title
         $uid = $bitfield = $options = '';                                       // Set post options
-        
+
         wp_generate_text_for_storage($post_content, $uid, $bitfield, $options, true, true, true);       // Process post content
         wp_generate_text_for_storage($post_title, $uid, $bitfield, $options, true, true, true);         // Process post title
-        
+
         $poll = null;               // There is no poll
-        
+
         $p = get_post($id);
         $current_title = $p->post_title;
         $current_hash = md5($p->post_content);
         unset($p);
-        
+
         $post_exists_sql = "SELECT
           `p`.`topic_id` AS `TOPIC`,
           `p`.`forum_id` AS `FORUM`
@@ -529,14 +530,14 @@ function add_post($id, $post)
           `p`.`post_subject` = '" . $current_title . "'
         OR
           `p`.`post_checksum` = '" . $current_hash . "'";
-          
+
         $post_exists = $wpdb->get_results($post_exists_sql);
-                        
+
         // Loop through the allowed forums
         foreach($add_to_forum as $forum_id)
         {
             $topicId = 0;
-            
+
             foreach($post_exists as $post_e)
             {
                 if($forum_id == $post_e->FORUM)
@@ -545,7 +546,7 @@ function add_post($id, $post)
                     $topicId = $post_e->TOPIC;
                 }
             }
-            
+
             $data = array(
                 'forum_id' => $forum_id,                    // Forum ID
                 'topic_id' => $topicId,                     // 0 Create new post, seted ID updates the existing topic
@@ -567,7 +568,7 @@ function add_post($id, $post)
                 'enable_indexing' => true,                  // Set indexing to true
                 'force_approved_state' => true              // Set the posts as approved
             );
-            
+
             // Submit the data here
             submit_post(
                 'post',
