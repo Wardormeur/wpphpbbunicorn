@@ -62,7 +62,7 @@ class WPPHPBBU_AdminPanel
               $wpphpbbu_post_locked = isset($_POST['wpphpbbu_post_locked']) ? 'yes' : 'no';
 
               update_option('wpphpbbu_path', $wpphpbbu_path);
-			        $is_path = is_path_ok();
+			        $is_path = wpphpbbu\Path::is_path_ok();
               if(!$is_path)
               {
                   $e->add('file_not_exists', __('The file config.php does not exists in the path you have enter', 'wpphpbbu'));

@@ -92,7 +92,7 @@ class UsersWidget extends \WP_Widget
     	$info_title = $instance['wpphpbbu_user_info_title'];
     	$meta_links = $instance['wpphpbbu_user_show_meta'];
 
-      $user_status = wpphpbbu_is_user_logged_in();
+      $user_status = \wpphpbbu\User::is_user_logged_in();
 
       $title = '';
 
@@ -107,11 +107,10 @@ class UsersWidget extends \WP_Widget
 
       $title = str_replace('{USERNAME}', trim($user->data['username']), $title);
 
-      $forum_url = $ucp_url = get_option('wpphpbbu_path');
+      $forum_url = $ucp_url = get_option('wpphpbbu_url');
       $ucp_url .= 'ucp.php';
 
       echo $before_widget . $before_title . $title . $after_title;
-
       if($user_status == false)
       {
       	$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
@@ -187,9 +186,9 @@ class UsersWidget extends \WP_Widget
         }
         else
         {
-          $avatar = wpphpbbu_get_avatar();
-        	$admin_url = wpphpbbu_get_admin_link();
-          $mcp_url = wpphpbbu_get_mcp_link();
+          $avatar = \wpphpbbu\User::get_avatar();
+        	$admin_url = \wpphpbbu\Path::get_admin_link();
+          $mcp_url = \wpphpbbu\Path::get_mcp_link();
         	$options = get_option('widget_wpb_user');
         	$meta_links = $instance['wpphpbbu_user_show_meta'];
 
@@ -245,7 +244,7 @@ class UsersWidget extends \WP_Widget
                           }
                       }
 
-                      if(wpphpbbu_is_user_logged_in())
+                      if(\wpphpbbu\User::is_user_logged_in())
                       {
                           ?>
                               <li>
@@ -290,7 +289,7 @@ class UsersWidget extends \WP_Widget
                               }
                           ?>
                               <li>
-                                  <a href="<?php echo $ucp_url; ?>?mode=logout&sid=<?php echo wpphpbbu_get_sessionid(); ?>">
+                                  <a href="<?php echo $ucp_url; ?>?mode=logout&sid=<?php echo \wpphpbbu\Session::get_sessionid(); ?>">
                                       <?php
                                           echo _e('Log out', 'wpphpbbu');
                                       ?>

@@ -184,11 +184,11 @@ class LinksWidget extends \WP_Widget
         extract($args);
 
 
-        $forum_url =  $ucp_url = get_option('wpphpbbu_path');
+        $forum_url =  $ucp_url = get_option('wpphpbbu_url');
 				$ucp_url .= 'ucp.php';
         $search_url = $forum_url . 'search.php';
         $member_url = $forum_url . 'memberlist.php';
-        $session_id = 'sid=' . wpphpbbu_get_sessionid();
+        $session_id = 'sid=' . \wpphpbbu\Session::get_sessionid();
 
         $title = $instance['wpphpbbu_links_title'];
         $display_index = $instance['wpphpbbu_links_index'];
@@ -241,7 +241,7 @@ class LinksWidget extends \WP_Widget
             echo '</a></li>';
         }
 
-        if(wpphpbbu_is_user_logged_in())
+        if(\wpphpbbu\User::is_user_logged_in())
         {
             if($display_your_posts == 'yes')
             {

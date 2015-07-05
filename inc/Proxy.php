@@ -2,7 +2,7 @@
 
 namespace wpphpbbu;
 
-class ClassProxy{
+class Proxy{
 
 	private function cleanFolder(){
 		unlink(__DIR__.'/cache/functions_content.php');
@@ -96,4 +96,17 @@ class ClassProxy{
 			echo 'Parse Error: ', $e->getMessage();
 		}
 	}
+
+
+	static function is_cache_ok(){
+		$return = false;
+		if(
+			file_exists( plugin_dir_path(__FILE__).'cache/functions_content.php') && filesize(plugin_dir_path(__FILE__).'cache/functions_content.php') > 1024
+			&& file_exists( plugin_dir_path(__FILE__).'cache/common.php') && filesize(plugin_dir_path(__FILE__).'cache/common.php') > 1024
+			&& file_exists( plugin_dir_path(__FILE__).'cache/functions_user.php') && filesize(plugin_dir_path(__FILE__).'cache/functions_user.php') > 1024
+		)
+				$return = true;
+		return $return;
+	}
+
 }

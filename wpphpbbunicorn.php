@@ -12,10 +12,12 @@
 
 use Symfony\Component\ClassLoader\UniversalClassLoader;
 
-require_once __DIR__.'/inc/wpbb_functions.php';
+require_once __DIR__.'/inc/helpers/wpbb_functions.php';
+use wpphpbbu\helpers;
 
 require_once __DIR__.'/inc/Path.php';
-require_once __DIR__.'/inc/PhpbbSession.php';
+require_once __DIR__.'/inc/Session.php';
+require_once __DIR__.'/inc/User.php';
 
 //needed for classes proxy
 
@@ -26,7 +28,8 @@ require_once __DIR__.'/vendor/nikic/php-parser/lib/bootstrap.php';
 require_once __DIR__.'/SafeFunction.php';
 require_once __DIR__.'/PathFixer.php';
 
-require_once __DIR__.'/inc/ClassProxy.php';
+require_once __DIR__.'/inc/Proxy.php';
+
 
 
 
@@ -58,7 +61,7 @@ class Unicorn{
 		// in case path is wrong (or unset), we still want to be able to access the admin panel
 		add_action('wpphpbbu_changed', array($this,'changed'));
 
-		if( is_path_ok() && is_cache_ok() && !defined('SHORT_INIT') ){
+		if( wpphpbbu\Path::is_path_ok() && wpphpbbu\Proxy::is_cache_ok() && !defined('SHORT_INIT') ){
 			try{
 				$this->start();
 				$this->phpbb_includes();
@@ -76,10 +79,10 @@ class Unicorn{
         var_dump('DUH');
 			}
 		}else{
-      if(is_path_ok())
+      if(wpphpbbu\Path::is_path_ok())
       {
         //set initial cache
-        (new wpphpbbu\ClassProxy())->setCache();
+        (new wpphpbbu\Proxy())->setCache();
       }
     }
 		$this->admin_includes();
@@ -94,45 +97,6 @@ class Unicorn{
       load_plugin_textdomain('wpbb', false, 'i18n/');
       $this->register_events();
   }
-  /**
-   * Find a path
-   */
-  function find_phpbbPath()
-  {
-  	$wp_path = get_home_path();
-  	$i = 0; $found=false;
-  	do{
-  		//http://php.net/manual/en/class.recursivedirectoryiterator.php#114504
-  		$directory = new \RecursiveDirectoryIterator($wp_path, \FilesystemIterator::FOLLOW_SYMLINKS);
-  		//OH WAIT? this PIECE OF SHI*T doesnt work for recursive directory that arent the parent. GOD. WHY.
-  		$filter = new \RecursiveCallbackFilterIterator($directory, function ($current, $key, $iterator) {
-  			//in case we take the time to exclude the self from the previous loop
-  			//well, it's ez, but im lazy
-  			return true;
-  		});
-  		$iterator = new \RecursiveIteratorIterator($filter);
-  		//directory dependance of the callback request us to ... redefine the whole goddam thing each loop. cmon..
-
-  		$files = array();
-  		$iterator->rewind();
-  		while( $iterator->valid() || !$found)
-  		{
-  			$info = $iterator->current();
-  			$iterator->next();
-  		  //alasfiltering must be done here cause filter doesnt filter.meh.
-  			if(strpos($info->getFilename(),'config.php') === 0)
-  				$files[] = $info->getPath();
-  				//actually, yeah, we stop once we found one.
-  				$found = true;
-  		}
-
-  		//We got up 1 lvl in hierarchy
-  		$wp_path = $wp_path.'../';
-  		$i++;
-  	}while ($i<2 || !$found);
-  	return !empty($files)?$files[0]:"";
-  }
-
 
 
 
@@ -203,7 +167,6 @@ class Unicorn{
 
 
 	function init_widget(){
-		require_once __DIR__.'/inc/wpbb_functions.php';
 
 		// Load WP phpBB Bridge widget
     require_once(__DIR__.'/inc/widgets/UsersWidget.php');
@@ -251,7 +214,9 @@ class Unicorn{
 
 	function uninstall()
 	{
-		delete_option('wpphpbbu_config_path');
+		delete_option('wpphpbbu_path');
+		delete_option('wpphpbbu_path_ok');
+		delete_option('wpphpbbu_url');
 		delete_option('wpphpbbu_version');
 		delete_option('wpphpbbu_post_locked');
 		delete_option('wpphpbbu_post_posts');
@@ -269,7 +234,7 @@ class Unicorn{
 	function changed()
 	{
 		if(get_option( 'wpphpbbu_path_ok', false ))
-			( new wpphpbbu\ClassProxy())->setCache();
+			( new wpphpbbu\Proxy())->setCache();
 	}
 
 }

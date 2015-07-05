@@ -1,6 +1,7 @@
 <?php
 
 namespace wpphpbbu\widgets;
+
 class MetaWidget extends \WP_Widget
 {
 	function __construct() {
@@ -62,14 +63,13 @@ class MetaWidget extends \WP_Widget
     function widget($args, $instance)
     {
         extract($args);
-				die();
 
     	$title = $instance['wpphpbbu_meta_title'];
 
       $ucp_url = get_option('wpphpbbu_url').'ucp.php';
-    	$admin_url = wpphpbbu_get_admin_link();
-    	$mcp_url = wpphpbbu_get_mcp_link();
-    	$permission_url = wpphpbbu_get_restore_permissions_link();
+    	$admin_url = \wpphpbbu\Path::get_admin_link();
+    	$mcp_url = \wpphpbbu\Path::get_mcp_link();
+    	$permission_url = \wpphpbbu\Path::get_restore_permissions_link();
 
     	if(empty($title))
     	{
@@ -81,7 +81,7 @@ class MetaWidget extends \WP_Widget
         ?>
             <ul>
                 <?php
-                    if(wpphpbbu_is_user_logged_in())
+                    if(\wpphpbbu\User::is_user_logged_in())
                     {
                 ?>
                     <li>
@@ -140,7 +140,7 @@ class MetaWidget extends \WP_Widget
 
                         ?>
                             <li>
-                                <a href="<?php echo $ucp_url; ?>?mode=logout&sid=<?php echo wpphpbbu_get_sessionid(); ?>">
+                                <a href="<?php echo $ucp_url; ?>?mode=logout&sid=<?php echo \wpphpbbu\Session::get_sessionid(); ?>">
                                     <?php
                                         echo _e('Log out', 'wpphpbbu');
                                     ?>
