@@ -9,7 +9,6 @@ class User{
     global $phpbb_container;
 
     $userid = 0;                                            // Set userid to 0;
-    //var_dump($s_user);
     // If current user type is normal user or the current user type is founder
     if($user->data['user_type'] == USER_NORMAL || $user->data['user_type'] == USER_FOUNDER)
     {
@@ -152,7 +151,7 @@ class User{
   {
   	global $user;
 
-  	if (wpphpbbu_is_active() && wpphpbbu_is_user_logged_in())
+  	if (is_active() && is_user_logged_in())
   	{
   		return sprintf($user->lang['YOU_LAST_VISIT'], $user->format_date($user->data['session_last_visit']));
   	}

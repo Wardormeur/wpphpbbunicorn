@@ -9,8 +9,9 @@ class Path{
 
 	static function login_page() {
 		global $phpbb_root_path;
-			$page = basename($_SERVER['REQUEST_URI']);
-		if( strpos($page,"wp-login.php")!== false && get_option('wpphpbbu_url',false)) {
+		$page = basename($_SERVER['REQUEST_URI']);
+		if( strpos($page,"wp-login.php")!== false && get_option('wpphpbbu_url',false) && !\wpphpbbu\User::is_user_logged_in()
+				&& strpos($page,'loggedout') === false ) {
 			wp_redirect(get_option('wpphpbbu_url',false) .'ucp.php?mode=login&redirect=' . urlencode(get_bloginfo('home')),301);
 			exit;//seriously, when documentation requires this one, it demonstrate how much it suxx
 		}
@@ -18,9 +19,10 @@ class Path{
 
 
 	static function logout_page() {
-		global $user;
+		global $phpbb_container;
 		// we have got the sessions, destroy them all! WP on's are ahndled normally, so we destroy the phpbb one
-		$user->session_kill();
+		//proof that global suxx, user is the WP one at this moment
+		$phpbb_container->get('user')->session_kill(false);
 		wp_redirect(get_bloginfo('home'));
 		exit;//Sorry for anyone trying to plug after this
 

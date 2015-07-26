@@ -12,22 +12,25 @@
 
 use Symfony\Component\ClassLoader\UniversalClassLoader;
 
-require_once __DIR__.'/inc/helpers/wpbb_functions.php';
-use wpphpbbu\helpers;
-
 require_once __DIR__.'/inc/Path.php';
 require_once __DIR__.'/inc/Session.php';
 require_once __DIR__.'/inc/User.php';
+require_once __DIR__.'/inc/Post.php';
+require_once __DIR__.'/inc/Forum.php';
+
+require_once __DIR__.'/inc/widgets/ForumSelector.php';
+
 
 //needed for classes proxy
 
 require_once __DIR__.'/lib/ClassLoader/UniversalClassLoader.php';
 require_once __DIR__.'/vendor/autoload.php';
+
+
 //We had to exclude from composer it to allow a better export of the plugin (sub-tree)
 require_once __DIR__.'/vendor/nikic/php-parser/lib/bootstrap.php';
 require_once __DIR__.'/SafeFunction.php';
 require_once __DIR__.'/PathFixer.php';
-
 require_once __DIR__.'/inc/Proxy.php';
 
 
@@ -71,9 +74,25 @@ class Unicorn{
 				add_action('init', array($this, 'start_integration'));      // Start application integration
 				//redirect pages
 				add_action('init', function(){ wpphpbbu\Path::login_page();});
-				add_action('wp_logout', function(){ wpphpbbu\Path::logout_page();});
+		    add_action('init', array( $this ,'add_permissions'));
+    		add_action('wp_logout', function(){ wpphpbbu\Path::logout_page();});
 				add_action( 'add_meta_boxes', array( $this, 'add_meta_box' ) );
+        if(get_option('wpphpbbu_post_posts',false) === "yes"){
+          //
+          // // Check if our nonce is set.
 
+          // Call add_post when creating new WordPress post, to create a new forum topic
+          add_action('wp_insert_post', function($post = null){
+              $add_to_forums = [];
+              // Sanitize user input ?
+              $add_to_forums =   isset($_POST['forum_id']) ? $_POST['forum_id']:null ;
+              if($add_to_forums){
+                wpphpbbu\Post::add_post($post,$add_to_forums);
+              }
+            }
+          );
+
+        }
 
 			}catch(Exception $e){
         var_dump('DUH');
@@ -101,10 +120,14 @@ class Unicorn{
 
 
 	function register_events(){
-    // Call add_post when creating new WordPress post, to create a new forum topic
-    add_action('wp_insert_post', 'add_post', 10, 2);
 	}
 
+  function add_permissions(){
+    global $wp_roles;
+    foreach ($wp_roles->roles as $name=>$array ) {
+      $wp_roles->add_cap($name,'post_to_forum');
+    }
+  }
 
 	/**
    * Include external files
@@ -128,8 +151,11 @@ class Unicorn{
   	define('IN_PHPBB', true);
   	//minimal conf
   	//putenv('PHPBB_NO_COMPOSER_AUTOLOAD=1');
+
+    //TODO: Idea abt DI of phpbb's container to avoid globalz
+    //Inject only the container itself as a global and access the rest trhough it
   	global $phpbb_container;
-  	global $phpbb_root_path, $phpEx,  $user,$auth, $db, $config, $cache, $template,$table_prefix;
+  	global $phpbb_root_path, $phpEx, $user, $auth, $db, $config, $cache, $template,$table_prefix;
   	global $request;
   	global $phpbb_dispatcher;
   	global $symfony_request;
@@ -147,23 +173,32 @@ class Unicorn{
 
   	$request->enable_super_globals();
   }
+
   /*
- * Adds the meta box container.
+ * Adds the forum posting container.
  */
 	public function add_meta_box( $post_type ) {
+
+	  wp_nonce_field( 'wpphpbbu_save_meta_box_data', 'wpphpbbu_meta_box_nonce' );
     $post_types = array('post', 'page');     //limit meta box to certain post types
     if ( in_array( $post_type, $post_types )) {
   		add_meta_box(
-  			'some_meta_box_name'
-  			,__( 'Some Meta Box Headline', 'myplugin_textdomain' )
-  			,array( $this, 'render_meta_box_content' )
+  			'forum_publication_box'
+  			,__( 'Forum Publication', 'wpphpbbu' )
+  			,array( $this, 'render_posting_box_content' )
   			,$post_type
   			,'advanced'
-  			,'high'
+  			,'default'
   		);
     }
   }
 
+
+function render_posting_box_content($post = null){
+  $forums = (new \wpphpbbu\Forum(\wpphpbbu\User::get_userid()))->get_forum_list();
+  $selected = get_post_meta( $post->ID, 'wpphpbbu_forums', true );
+  (new \wpphpbbu\widgets\ForumSelector())->print_forum($forums, $selected);
+}
 
 
 	function init_widget(){
@@ -225,17 +260,23 @@ class Unicorn{
   function activate()
 	{
 		do_action('wpphpbbu_activated');
+    $this->add_permissions();
+
 	}
 
 	function deactivate()
 	{
 		do_action('wpphpbbu_deactivated');
+    $this->remove_permission();
 	}
 	function changed()
 	{
-		if(get_option( 'wpphpbbu_path_ok', false ))
+		if(get_option( 'wpphpbbu_path_ok', false )){
 			( new wpphpbbu\Proxy())->setCache();
+    }
+
 	}
+
 
 }
 
