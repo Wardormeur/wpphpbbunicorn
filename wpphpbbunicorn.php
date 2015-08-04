@@ -74,7 +74,6 @@ class Unicorn{
 				add_action('init', array($this, 'start_integration'));      // Start application integration
 				//redirect pages
 				add_action('init', function(){ wpphpbbu\Path::login_page();});
-		    add_action('init', array( $this ,'add_permissions'));
     		add_action('wp_logout', function(){ wpphpbbu\Path::logout_page();});
 				add_action( 'add_meta_boxes', array( $this, 'add_meta_box' ) );
         if(get_option('wpphpbbu_post_posts',false) === "yes"){
@@ -113,8 +112,7 @@ class Unicorn{
   function start()
   {
       // Load text domain for plugin
-//      load_plugin_textdomain('wpbb', false, 'i18n/');
- load_plugin_textdomain('wpphpbbu', false, dirname( plugin_basename( __FILE__ ) ) . '/i18n/');
+      load_plugin_textdomain('wpphpbbu', false, dirname( plugin_basename( __FILE__ ) ) . '/i18n/');
       $this->register_events();
   }
 
@@ -127,6 +125,13 @@ class Unicorn{
     global $wp_roles;
     foreach ($wp_roles->roles as $name=>$array ) {
       $wp_roles->add_cap($name,'post_to_forum');
+    }
+  }
+
+  function remove_permissions(){
+    global $wp_roles;
+    foreach ($wp_roles->roles as $name=>$array ) {
+      $wp_roles->remove_cap($name,'post_to_forum');
     }
   }
 
@@ -268,7 +273,7 @@ function render_posting_box_content($post = null){
 	function deactivate()
 	{
 		do_action('wpphpbbu_deactivated');
-    $this->remove_permission();
+    $this->remove_permissions();
 	}
 	function changed()
 	{
