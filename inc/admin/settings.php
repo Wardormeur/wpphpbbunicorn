@@ -49,7 +49,7 @@
                       <input name="wpphpbbu_path" type="text" id="wpphpbbu_path" value="<?php echo $wpphpbbu_path; ?>" class="regular-text" />
                       <br />
                       <span class="description">
-                          <?php _e('Enter the absolute path to phpBB directory', 'wpphpbbu'); ?>
+                          <?php _e('Enter the absolute path to phpBB directory ending with a slash', 'wpphpbbu'); ?>
                       </span>
                   </td>
               </tr>
@@ -65,7 +65,7 @@
                         <input name="wpphpbbu_url" type="text" id="wpphpbbu_url" value="<?php echo $wpphpbbu_url; ?>" class="regular-text" />
                         <br />
                         <span class="description">
-                            <?php _e('Enter the url of phpBB directory', 'wpphpbbu'); ?>
+                            <?php _e('Enter the url of phpBB directory ending with a slash', 'wpphpbbu'); ?>
                         </span>
                     </td>
                 </tr>
