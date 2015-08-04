@@ -113,7 +113,8 @@ class Unicorn{
   function start()
   {
       // Load text domain for plugin
-      load_plugin_textdomain('wpbb', false, 'i18n/');
+//      load_plugin_textdomain('wpbb', false, 'i18n/');
+ load_plugin_textdomain('wpphpbbu', false, dirname( plugin_basename( __FILE__ ) ) . '/i18n/');
       $this->register_events();
   }
 
