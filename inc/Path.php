@@ -6,6 +6,15 @@ class Path{
 		return file_exists( get_option( 'wpphpbbu_path', false ).'includes/functions_content.php');
 	}
 
+	static function is_url_ok(){
+		$url = get_option( 'wpphpbbu_url', false );
+		if( filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)){
+			return strpos(@get_headers($url)[0],'200') === false ? false : true;
+		}
+		return false;
+	}
+
+
 
 	static function login_page() {
 		global $phpbb_root_path;

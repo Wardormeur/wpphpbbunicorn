@@ -61,6 +61,7 @@ class WPPHPBBU_AdminPanel
               $wpphpbbu_post_posts = isset($_POST['wpphpbbu_post_posts']) ? 'yes' : 'no';
               $wpphpbbu_post_locked = isset($_POST['wpphpbbu_post_locked']) ? 'yes' : 'no';
 
+              //Check Path
               update_option('wpphpbbu_path', $wpphpbbu_path);
 			        $is_path = wpphpbbu\Path::is_path_ok();
               if(!$is_path)
@@ -68,8 +69,15 @@ class WPPHPBBU_AdminPanel
                   $e->add('file_not_exists', __('The file config.php does not exists in the path you have enter', 'wpphpbbu'));
 			        }
       				update_option('wpphpbbu_path_ok', $is_path);
-              update_option('wpphpbbu_url',$wpphpbbu_url);
 
+              //Check url
+              update_option('wpphpbbu_url',$wpphpbbu_url);
+              $is_url = wpphpbbu\Path::is_url_ok();
+              if(!$is_url)
+              {
+                  $e->add('file_not_exists', __('The folder ucp does not exists in the path you have enter', 'wpphpbbu'));
+			        }
+      				update_option('wpphpbbu_url_ok', $is_url);
 
       				do_action('wpphpbbu_changed');
               update_option('wpphpbbu_post_posts', $wpphpbbu_post_posts);
