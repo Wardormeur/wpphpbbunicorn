@@ -169,13 +169,13 @@ class Unicorn{
 
   	$phpEx = 'php';
     $phpbb_root_path = get_option('wpphpbbu_path');
-  	require_once(__DIR__ . '\inc\cache\common.php');
+  	require_once(plugin_dir_path(__FILE__). 'inc/cache/common.php');
 
   	require_once($phpbb_root_path . 'includes/utf/utf_normalizer.php');
   	require_once($phpbb_root_path.'phpbb/session.php');
   	require_once($phpbb_root_path.'phpbb/user.php');
   	require_once($phpbb_root_path.'phpbb/auth/auth.php');
-  	require_once(__DIR__ .'\inc\cache\functions_user.php');
+  	require_once(plugin_dir_path(__FILE__).'inc/cache/functions_user.php');
 
   	$request->enable_super_globals();
   }
