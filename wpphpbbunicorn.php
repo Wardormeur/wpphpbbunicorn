@@ -64,7 +64,7 @@ class Unicorn{
 		// in case path is wrong (or unset), we still want to be able to access the admin panel
 		add_action('wpphpbbu_changed', array($this,'changed'));
 
-		if( wpphpbbu\Path::is_path_ok() && wpphpbbu\Proxy::is_cache_ok() && !defined('SHORT_INIT') ){
+		if( wpphpbbu\Path::is_path_ok() && wpphpbbu\Path::is_url_ok() && wpphpbbu\Proxy::is_cache_ok() && !defined('SHORT_INIT') ){
 			try{
 				$this->start();
 				$this->phpbb_includes();
@@ -97,7 +97,7 @@ class Unicorn{
         var_dump('DUH');
 			}
 		}else{
-      if(wpphpbbu\Path::is_path_ok())
+      if(wpphpbbu\Path::is_path_ok() && wpphpbbu\Path::is_url_ok())
       {
         //set initial cache
         (new wpphpbbu\Proxy())->setCache();
