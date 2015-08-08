@@ -50,6 +50,9 @@
                       <br />
                       <span class="description">
                           <?php _e('Enter the absolute path to phpBB directory ending with a slash', 'wpphpbbu'); ?>
+                      </span></br>
+                      <span class="description">
+                        <?php _e('This wordpress absolute path is => ', 'wpphpbbu'); echo get_home_path(); ?>
                       </span>
                   </td>
               </tr>
