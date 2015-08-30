@@ -47,7 +47,7 @@ class Path{
 
 		if(is_object($auth) && method_exists($auth, 'acl_get') && $auth->acl_get('a_') && $user->data['is_registered'])
 		{
-			$forum_url = get_option('wppphpbbu_url');
+			$forum_url = get_option('wpphpbbu_url');
 			return $forum_url . 'adm/index.php?sid=' . $user->session_id;
 		}
 		else
