@@ -34,7 +34,7 @@ require_once __DIR__.'/PathFixer.php';
 require_once __DIR__.'/inc/Proxy.php';
 
 
-
+//TODO: look @transient API fromWP to store the user instead of phpbb?
 
 class Unicorn{
 
@@ -73,7 +73,14 @@ class Unicorn{
 				// Do init actions
 				add_action('init', array($this, 'start_integration'));      // Start application integration
 				//redirect pages
-				add_action('init', function(){ wpphpbbu\Path::login_page();});
+				add_action('init', function(){
+          if(wpphpbbu\User::is_user_logged_in() === false && wp_get_current_user()->ID !== 0){ //We're logged_in by WP but not phpbb : you may have disconnected on phpbb
+          // //but it doesn't reflect here so we manually pull you out :)
+            wp_logout();
+          }else{
+            wpphpbbu\Path::login_page();
+          }
+        });
     		add_action('wp_logout', function(){ wpphpbbu\Path::logout_page();});
 				add_action( 'add_meta_boxes', array( $this, 'add_meta_box' ) );
         if(get_option('wpphpbbu_post_posts',false) === "yes"){
