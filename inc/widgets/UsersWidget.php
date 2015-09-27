@@ -289,7 +289,7 @@ class UsersWidget extends \WP_Widget
                               }
                           ?>
                               <li>
-                                  <a href="<?php echo $ucp_url; ?>?mode=logout&sid=<?php echo \wpphpbbu\Session::get_sessionid(); ?>">
+                                  <a href="<?php echo wp_logout_url(home_url()); ?>">
                                       <?php
                                           echo _e('Log out', 'wpphpbbu');
                                       ?>

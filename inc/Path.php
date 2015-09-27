@@ -22,7 +22,6 @@ class Path{
 		if( strpos($page,"wp-login.php")!== false && get_option('wpphpbbu_url',false) && !\wpphpbbu\User::is_user_logged_in()
 				&& strpos($page,'loggedout') === false ) {
 			wp_redirect(get_option('wpphpbbu_url',false) .'ucp.php?mode=login&redirect=' . urlencode(get_bloginfo('home')),301);
-			var_dump('in');
 			exit;//seriously, when documentation requires this one, it demonstrate how much it suxx
 		}
 	}
@@ -33,7 +32,8 @@ class Path{
 		// we have got the sessions, destroy them all! WP on's are ahndled normally, so we destroy the phpbb one
 		//proof that global suxx, user is the WP one at this moment
 		$phpbb_container->get('user')->session_kill(false);
-		// exit;//Sorry for anyone trying to plug after this
+		wp_redirect(home_url());
+		exit;//Sorry for anyone trying to plug after this
 
 	}
 
