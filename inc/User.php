@@ -35,11 +35,17 @@ class User{
     {
     	global $config, $user,$phpbb_container;
 
-    	$forum_url = get_option('wppphpbbu_url');
+    	$forum_url = get_option('wpphpbbu_url');
+      //Crap patchfix, TODO find another way
+      //Prob best way is to stock it (again?)
+      // $ret= phpbb_get_user_avatar($user->data);
 
-    	$ret= phpbb_get_user_avatar($user->data);
-
-    	return $ret;
+    	return '<img
+        alt=""
+        src="' . $forum_url.'download/file.php?avatar='.$user->data['user_avatar']. '"
+        height="' . $user->data['user_avatar_height'] . '"
+        width="' . $user->data['user_avatar_width'] . '"
+      />';
     }
 
     /**
