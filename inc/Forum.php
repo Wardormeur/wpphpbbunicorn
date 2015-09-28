@@ -9,7 +9,7 @@ class Forum{
 
     $sql = 'SELECT forum_id,forum_name from '.$table_prefix.'forums';
     $forums = $db->sql_query($sql);
-    while($forum = $forums->fetch_assoc())
+    while($forum = $db->sql_fetchrow($forums))
     {
       if ($auth->acl_get('f_', $forum['forum_id'])){
         $this->forum_list[$forum['forum_name']] = $forum['forum_id'];

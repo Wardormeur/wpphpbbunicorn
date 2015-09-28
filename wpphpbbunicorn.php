@@ -192,7 +192,7 @@ class Unicorn{
  */
 	public function add_meta_box( $post_type ) {
 
-	  wp_nonce_field( 'wpphpbbu_save_meta_box_data', 'wpphpbbu_meta_box_nonce' );
+	  // wp_nonce_field( 'wpphpbbu_save_meta_box_data', 'wpphpbbu_meta_box_nonce' );
     $post_types = array('post', 'page');     //limit meta box to certain post types
     if ( in_array( $post_type, $post_types )) {
   		add_meta_box(
