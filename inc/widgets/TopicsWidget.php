@@ -126,11 +126,10 @@ class TopicsWidget extends \WP_Widget
 
         echo $before_widget . $before_title . $title . $after_title;
 
-				$forum_url = get_option('wpphpbbu_path');
+				$forum_url = get_option('wpphpbbu_url');
 
 
-        // TODO : Next Version, to get connected with phpBB $db object in order to retrive the
-        //        forum posts. Also to remove the database encoding from plugin options
+        // TODO : Next Version, to get connected with phpBB $db object in order to retrive the forum posts
 
 
 		$qr = "SELECT p.`topic_id` AS `ID`, p2.`forum_name` AS `FORUM`, p.`forum_id` AS `FORUM_ID`, p.`topic_title` AS `TITLE`, p.`topic_views` AS `VIEWS`, `username_clean` AS `USERNAME`, p.`topic_poster` AS `USER_ID`, p.`topic_time` AS `TIME`

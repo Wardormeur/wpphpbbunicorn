@@ -189,7 +189,6 @@ class UsersWidget extends \WP_Widget
           $avatar = \wpphpbbu\User::get_avatar();
         	$admin_url = \wpphpbbu\Path::get_admin_link();
           $mcp_url = \wpphpbbu\Path::get_mcp_link();
-        	$options = get_option('widget_wpb_user');
         	$meta_links = $instance['wpphpbbu_user_show_meta'];
 
           if($avatar)

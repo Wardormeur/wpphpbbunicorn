@@ -36,16 +36,12 @@ class User{
     	global $config, $user,$phpbb_container;
 
     	$forum_url = get_option('wpphpbbu_url');
+    	$base_path = get_option('wpphpbbu_path');
       //Crap patchfix, TODO find another way
       //Prob best way is to stock it (again?)
-      // $ret= phpbb_get_user_avatar($user->data);
-
-    	return '<img
-        alt=""
-        src="' . $forum_url.'download/file.php?avatar='.$user->data['user_avatar']. '"
-        height="' . $user->data['user_avatar_height'] . '"
-        width="' . $user->data['user_avatar_width'] . '"
-      />';
+      $ret= phpbb_get_user_avatar($user->data);
+      $ret = str_replace($base_path,$forum_url,$ret);
+    	return $ret;
     }
 
     /**
