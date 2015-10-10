@@ -19,7 +19,8 @@ class Session{
   			{
   				wp_clear_auth_cookie();
   				$wpuser = wp_set_current_user($userid);                                       // Set the current user
-  				wp_set_auth_cookie($userid, true, false);
+  				wp_set_auth_cookie($wpuser->ID, true, false);
+          // apply_filters( 'nonce_user_logged_out', $wpuser->ID );
   			}
       }
       // Return current user session id

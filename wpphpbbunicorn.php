@@ -49,7 +49,7 @@ class Unicorn{
 
 	public function __construct()
   {
-      add_action('plugins_loaded', array($this, 'init'), 8);
+      add_action('plugins_loaded', array($this, 'init'), 0);
 	    $unicorn = $this;
   }
 
@@ -63,15 +63,19 @@ class Unicorn{
 
 		// in case path is wrong (or unset), we still want to be able to access the admin panel
 		add_action('wpphpbbu_changed', array($this,'changed'));
+    // Load text domain for plugin
+    load_plugin_textdomain('wpphpbbu', false, dirname( plugin_basename( __FILE__ ) ) . '/i18n/');
 
 		if( wpphpbbu\Path::is_path_ok() && wpphpbbu\Path::is_url_ok() && wpphpbbu\Proxy::is_cache_ok() && !defined('SHORT_INIT') ){
 			try{
-				$this->start();
 				$this->phpbb_includes();
 				$this->init_widget();
 
 				// Do init actions
 				add_action('init', array($this, 'start_integration'));      // Start application integration
+
+        add_action( 'set_logged_in_cookie', array($this,'update_nonce_cookie') );
+
 				//redirect pages
 				add_action('init', function(){
           if(wpphpbbu\User::is_user_logged_in() === false && wp_get_current_user()->ID !== 0){ //We're logged_in by WP but not phpbb : you may have disconnected on phpbb
@@ -113,20 +117,9 @@ class Unicorn{
 		$this->admin_includes();
 
 	}
-  /**
-   * Start the plugin
-   */
-  function start()
-  {
-      // Load text domain for plugin
-      load_plugin_textdomain('wpphpbbu', false, dirname( plugin_basename( __FILE__ ) ) . '/i18n/');
-      $this->register_events();
-  }
 
 
 
-	function register_events(){
-	}
 
   function add_permissions(){
     global $wp_roles;
@@ -186,6 +179,11 @@ class Unicorn{
 
   	$request->enable_super_globals();
   }
+
+
+///////////////EVENT HANDLERS
+
+
 
   /*
  * Adds the forum posting container.
@@ -257,6 +255,11 @@ function render_posting_box_content($post = null){
   {
   	// Get session ID
   	$session_id = (new wpphpbbu\Session())->load_session_id();
+    do_action('update_nonce_cookie');
+  }
+
+  function update_nonce_cookie( $logged_in_cookie ){
+      $_COOKIE[LOGGED_IN_COOKIE] = $logged_in_cookie;
   }
 
 
