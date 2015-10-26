@@ -5,24 +5,22 @@ class User{
 
   static public function get_userid()
   {
-    global $wpdb, $user;
     global $phpbb_container;
+    global $table_prefix, $db, $auth, $user;
 
     $userid = 0;                                            // Set userid to 0;
     // If current user type is normal user or the current user type is founder
-    if($user->data['user_type'] == USER_NORMAL || $user->data['user_type'] == USER_FOUNDER)
+    // var_dump($user->data);
+    if($user->data && ($user->data['user_type'] == USER_NORMAL || $user->data['user_type'] == USER_FOUNDER))
     {
-      // List all users ID's where having meta_key of phpbb_userid and meta_value equal to current user id
-      $stat= $wpdb->prepare(
-          "SELECT ID FROM $wpdb->users WHERE user_nicename = %s",
-          $user->data['username_clean'] );
-
-      $id_list = $wpdb->get_col($stat);
-
+      $sql = "SELECT user_id, wordpress_id FROM {$table_prefix}users WHERE user_id = {$user->data['user_id']}";
+      $result = $db->sql_query($sql);
+      $users =  $db->sql_fetchrowset($result);
+      $affected_rows = $db->sql_affectedrows();
       //should return only 1, this is a security failure
-      if(!empty($id_list))
+      if(!empty($affected_rows) && count($affected_rows) === 1 )
       {
-                $userid = $id_list[0];
+                $userid = $users[0]['wordpress_id'];
       }
     }
     return $userid;

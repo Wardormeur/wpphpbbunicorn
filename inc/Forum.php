@@ -7,7 +7,7 @@ class Forum{
   function __construct($user_id){
     global $table_prefix,$db,$auth;
 
-    $sql = 'SELECT forum_id,forum_name from '.$table_prefix.'forums';
+    $sql = 'SELECT forum_id,forum_name FROM '.$table_prefix.'forums';
     $forums = $db->sql_query($sql);
     while($forum = $db->sql_fetchrow($forums))
     {
